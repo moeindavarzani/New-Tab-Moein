@@ -1,0 +1,1371 @@
+/* Prevent unnecessary horizontal scrollbar on homepage */
+html, body.hp, body.moein-tab-active {
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+/* Hide Footer, Language prompt, and buttons under search box */
+body.hp div[role="contentinfo"],
+body.hp .Ij8KCd,
+body.hp footer,
+body.hp #footer,
+body.moein-tab-active div[role="contentinfo"],
+body.moein-tab-active .Ij8KCd,
+body.moein-tab-active footer,
+body.moein-tab-active #footer {
+  display: none !important;
+}
+
+body.hp #SIvCob,
+body.moein-tab-active #SIvCob {
+  display: none !important;
+}
+
+body.hp .FPdoLc,
+body.hp div[jsname="VlcAae"],
+body.moein-tab-active .FPdoLc,
+body.moein-tab-active div[jsname="VlcAae"] {
+  display: none !important;
+}
+
+/* Master Unified Header Bar with Symmetrical 3-Column Grid */
+#moein-unified-bar {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
+  align-items: center !important;
+  width: 100% !important;
+  margin: 85px auto 0 auto !important;
+  padding: 0 20px !important;
+  position: relative !important;
+  z-index: 9999 !important;
+}
+
+/* Slot 1 (Right Wing in RTL): Google Logo centered in the right space */
+#moein-bar-logo {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+}
+
+#moein-bar-logo svg,
+#moein-bar-logo img {
+  height: 48px !important;
+  width: auto !important;
+  max-width: 150px !important;
+  display: block !important;
+}
+
+/* Slot 2 (Center Column): Search Bar in dead center */
+#moein-bar-search {
+  width: 620px !important;
+  max-width: 90vw !important;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+#moein-bar-search form {
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* Offline Banner inside #moein-bar-search */
+#moein-bar-search .moein-offline-banner {
+  width: 100% !important;
+  max-width: 620px !important;
+  height: 46px !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(223, 225, 229, 0.85) !important;
+  border-radius: 24px !important;
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.12) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  box-sizing: border-box !important;
+  padding: 0 20px !important;
+  cursor: default !important;
+  user-select: none !important;
+  transition: all 0.25s ease !important;
+}
+
+#moein-bar-search .moein-offline-banner:hover {
+  box-shadow: 0 2px 8px rgba(32, 33, 36, 0.18) !important;
+  border-color: rgba(200, 205, 210, 0.95) !important;
+}
+
+.moein-offline-text {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Vazirmatn", Tahoma, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 500 !important;
+  color: #5f6368 !important;
+  direction: ltr !important;
+  letter-spacing: 0.2px !important;
+}
+
+.moein-offline-icon {
+  flex-shrink: 0 !important;
+  color: #70757a !important;
+}
+
+.moein-nav-grid-placeholder {
+  width: 120px !important;
+  height: 48px !important;
+}
+
+/* Slot 3 (Left Wing in RTL): 4 Buttons centered in the left space */
+#moein-bar-nav {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Generous spacing between the 4 buttons */
+#moein-nav-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, auto) !important;
+  gap: 14px 28px !important;
+  align-items: center !important;
+  justify-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#moein-nav-grid .gb_7 {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+#moein-nav-grid #gbwa {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* 4-Column Transparent Folder Boxes Grid (Up to 12 Boxes) */
+#moein-shortcuts-grid {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 16px !important;
+  width: 92% !important;
+  max-width: 1380px !important;
+  margin: 40px auto 40px auto !important;
+  direction: rtl !important;
+  position: relative !important;
+  z-index: 999 !important;
+  box-sizing: border-box !important;
+}
+
+/* Transparent Square/Card Frame with Fixed Constrained Height */
+.moein-box-card {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: flex-start !important;
+  min-height: 185px !important;
+  max-height: 208px !important;
+  background: var(--moein-card-bg, rgba(246, 248, 250, 0.65)) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 20px !important;
+  padding: 10px 10px 8px 10px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  container-type: inline-size;
+  container-name: moeinbox;
+}
+
+.moein-box-card:hover {
+  background: var(--moein-card-hover-bg, rgba(255, 255, 255, 0.9)) !important;
+  border-color: rgba(26, 115, 232, 0.35) !important;
+  box-shadow: 0 8px 24px rgba(32, 33, 36, 0.1) !important;
+  transform: translateY(-3px) !important;
+}
+
+/* Card Drag-and-Drop Feedback */
+.moein-box-card.moein-dragging {
+  opacity: 0.45 !important;
+  transform: scale(0.97) !important;
+  border: 1.5px dashed #1a73e8 !important;
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.15) !important;
+  cursor: grabbing !important;
+}
+
+.moein-box-card.moein-drag-over,
+.moein-add-card.moein-drag-over {
+  border-color: #1a73e8 !important;
+  border-width: 1.5px !important;
+  background: rgba(232, 240, 254, 0.85) !important;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.35), 0 8px 24px rgba(26, 115, 232, 0.2) !important;
+  transform: translateY(-2px) scale(1.02) !important;
+}
+
+/* Card Header with Title, Badge, and Action Buttons */
+.moein-box-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  margin-bottom: 6px !important;
+  padding: 0 4px !important;
+  flex-shrink: 0 !important;
+  height: 24px !important;
+  box-sizing: border-box !important;
+}
+
+.moein-box-title-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  overflow: hidden !important;
+  max-width: calc(100% - 56px) !important;
+}
+
+/* Drag Handle Icon in Header */
+.moein-box-drag-handle {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 16px !important;
+  height: 20px !important;
+  cursor: grab !important;
+  color: #80868b !important;
+  opacity: 0.45 !important;
+  transition: all 0.15s ease !important;
+  flex-shrink: 0 !important;
+  border-radius: 4px !important;
+  user-select: none !important;
+  margin-left: 2px !important;
+}
+
+.moein-box-card:hover .moein-box-drag-handle {
+  opacity: 0.85 !important;
+}
+
+.moein-box-drag-handle:hover {
+  opacity: 1 !important;
+  color: #1a73e8 !important;
+  background: rgba(26, 115, 232, 0.1) !important;
+}
+
+.moein-box-drag-handle:active,
+.moein-box-card.moein-dragging .moein-box-drag-handle {
+  cursor: grabbing !important;
+  color: #1a73e8 !important;
+}
+
+.moein-box-title {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #3c4043 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  font-family: inherit !important;
+  cursor: default !important;
+}
+
+.moein-box-title svg {
+  flex-shrink: 0 !important;
+  color: #5f6368 !important;
+}
+
+.moein-box-title-text {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.moein-box-badge {
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  color: #5f6368 !important;
+  background: rgba(0, 0, 0, 0.05) !important;
+  padding: 1px 6px !important;
+  border-radius: 10px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Color Indicator Dot next to Bookmark Count */
+.moein-box-color-dot {
+  width: 13px !important;
+  height: 13px !important;
+  min-width: 13px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  cursor: pointer !important;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
+  flex-shrink: 0 !important;
+  box-sizing: border-box !important;
+  margin-right: 1px !important;
+  outline: none !important;
+}
+
+.moein-box-color-dot:hover {
+  transform: scale(1.28) !important;
+  border-color: #1a73e8 !important;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.3), 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Header Action Buttons (+ Add bookmark, Trash Delete folder) */
+.moein-box-actions {
+  display: flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  opacity: 0.7 !important;
+  transition: opacity 0.2s !important;
+}
+
+.moein-box-card:hover .moein-box-actions {
+  opacity: 1 !important;
+}
+
+.moein-btn-icon {
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #5f6368 !important;
+  padding: 0 !important;
+  transition: all 0.15s ease !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+.moein-btn-icon:hover {
+  background: rgba(0, 0, 0, 0.07) !important;
+  color: #202124 !important;
+  transform: scale(1.1) !important;
+}
+
+.moein-btn-icon.moein-btn-add:hover {
+  background: rgba(26, 115, 232, 0.12) !important;
+  color: #1a73e8 !important;
+}
+
+.moein-btn-icon.moein-btn-del:hover {
+  background: rgba(217, 48, 37, 0.12) !important;
+  color: #d93025 !important;
+}
+
+/* 2-Column Scrollable Sites Mini Grid inside each Card */
+.moein-box-items {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  grid-auto-rows: min-content !important;
+  gap: 10px 14px !important;
+  flex: 1 1 auto !important;
+  align-content: start !important;
+  align-items: start !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scroll-behavior: smooth !important;
+  max-height: 156px !important;
+  padding: 4px 6px 6px 14px !important;
+  box-sizing: border-box !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(60, 64, 67, 0.25) transparent !important;
+}
+
+/* Disable scrollbar completely when bookmarks fit in 2 rows */
+.moein-box-card.moein-no-scroll .moein-box-items,
+.moein-box-items.moein-no-scroll {
+  overflow-y: hidden !important;
+  padding: 4px 6px 6px 6px !important;
+}
+
+@container moeinbox (min-width: 260px) {
+  .moein-box-card.moein-no-scroll-on-wide .moein-box-items,
+  .moein-box-items.moein-no-scroll-on-wide {
+    overflow-y: hidden !important;
+    padding: 4px 6px 6px 6px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .moein-box-card.moein-no-scroll-on-wide .moein-box-items,
+  .moein-box-items.moein-no-scroll-on-wide {
+    overflow-y: hidden !important;
+    padding: 4px 6px 6px 6px !important;
+  }
+}
+
+/* 3 Bookmarks per row for folders with > 4 sites when horizontal space is expanded */
+@container moeinbox (min-width: 260px) {
+  .moein-box-card.moein-many-sites .moein-box-items,
+  .moein-box-items.moein-items-many {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px 6px !important;
+    padding: 4px 4px 6px 12px !important;
+  }
+
+  .moein-box-card.moein-many-sites .moein-site-name,
+  .moein-items-many .moein-site-name {
+    max-width: 76px !important;
+    font-size: 11px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .moein-box-card.moein-many-sites .moein-box-items,
+  .moein-box-items.moein-items-many {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8px 6px !important;
+    padding: 4px 4px 6px 12px !important;
+  }
+
+  .moein-box-card.moein-many-sites .moein-site-name,
+  .moein-items-many .moein-site-name {
+    max-width: 76px !important;
+    font-size: 11px !important;
+  }
+}
+
+/* Custom sleek compact scrollbar */
+.moein-box-items::-webkit-scrollbar {
+  width: 4px !important;
+}
+
+.moein-box-items::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+.moein-box-items::-webkit-scrollbar-thumb {
+  background: rgba(60, 64, 67, 0.2) !important;
+  border-radius: 4px !important;
+}
+
+.moein-box-items::-webkit-scrollbar-thumb:hover {
+  background: rgba(60, 64, 67, 0.45) !important;
+}
+
+/* Individual Site Wrapper with Hover Delete Button */
+.moein-site-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  display: flex !important;
+  justify-content: center !important;
+  transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease !important;
+}
+
+.moein-site-wrapper[draggable="true"] {
+  cursor: grab !important;
+}
+
+.moein-site-wrapper.moein-site-dragging {
+  opacity: 0.35 !important;
+  transform: scale(0.9) !important;
+  filter: grayscale(40%) !important;
+  cursor: grabbing !important;
+  pointer-events: none !important;
+}
+
+.moein-site-wrapper.moein-site-drag-over {
+  transform: scale(1.08) !important;
+  background: rgba(232, 240, 254, 0.95) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 0 0 2px #1a73e8, 0 4px 10px rgba(26, 115, 232, 0.25) !important;
+}
+
+.moein-site-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+  padding: 4px 3px !important;
+  border-radius: 12px !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+}
+
+.moein-site-item:hover {
+  background: rgba(232, 240, 254, 0.75) !important;
+  transform: scale(1.05) !important;
+}
+
+.moein-site-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+  margin-bottom: 3px !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.moein-site-icon img {
+  width: 24px !important;
+  height: 24px !important;
+  object-fit: contain !important;
+  display: block !important;
+}
+
+.moein-site-icon svg {
+  width: 20px !important;
+  height: 20px !important;
+  display: block !important;
+}
+
+.moein-site-name {
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  color: #3c4043 !important;
+  text-align: center !important;
+  width: 100% !important;
+  max-width: 96px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-family: inherit !important;
+  line-height: 1.3 !important;
+}
+
+/* Small delete badge on site hover */
+.moein-site-del-btn {
+  position: absolute !important;
+  top: -2px !important;
+  right: calc(50% - 22px) !important;
+  left: auto !important;
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  background: rgba(217, 48, 37, 0.95) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #ffffff !important;
+  font-size: 11px !important;
+  font-weight: bold !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: all 0.15s ease !important;
+  z-index: 10 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+  padding: 0 !important;
+}
+
+.moein-site-wrapper:hover .moein-site-del-btn {
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+.moein-site-del-btn:hover {
+  background: #d93025 !important;
+  transform: scale(1.2) !important;
+}
+
+/* Empty folder placeholder */
+.moein-box-empty {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 100% !important;
+  min-height: 90px !important;
+  gap: 6px !important;
+  color: #80868b !important;
+  font-size: 11px !important;
+  cursor: pointer !important;
+  grid-column: 1 / -1 !important;
+  padding: 12px 0 !important;
+  transition: color 0.15s !important;
+}
+
+.moein-box-empty:hover {
+  color: #1a73e8 !important;
+}
+
+.moein-box-empty svg {
+  color: inherit !important;
+}
+
+/* Add Window / Folder Card (Up to 10 Slots) */
+.moein-add-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-height: 180px !important;
+  max-height: 200px !important;
+  background: rgba(246, 248, 250, 0.45) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  border: 2px dashed rgba(60, 64, 67, 0.25) !important;
+  border-radius: 20px !important;
+  cursor: pointer !important;
+  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1) !important;
+  color: #5f6368 !important;
+  box-sizing: border-box !important;
+  gap: 8px !important;
+  direction: rtl !important;
+}
+
+.moein-add-card:hover {
+  background: rgba(255, 255, 255, 0.9) !important;
+  border-color: #1a73e8 !important;
+  color: #1a73e8 !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 24px rgba(26, 115, 232, 0.12) !important;
+}
+
+.moein-add-card-icon {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s !important;
+}
+
+.moein-add-card:hover .moein-add-card-icon {
+  background: #e8f0fe !important;
+  color: #1a73e8 !important;
+  border-color: #d2e3fc !important;
+  transform: scale(1.08) !important;
+}
+
+.moein-add-card-text {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  font-family: inherit !important;
+}
+
+/* ============================================================ */
+/* TAB MOEIN MODALS & OVERLAYS                                 */
+/* ============================================================ */
+.moein-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  z-index: 100000 !important;
+  background: rgba(32, 33, 36, 0.45) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  direction: rtl !important;
+  animation: moeinFadeIn 0.2s ease !important;
+}
+
+@keyframes moeinFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes moeinModalIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.moein-modal-dialog {
+  background: #ffffff !important;
+  width: 520px !important;
+  max-width: 92vw !important;
+  max-height: 85vh !important;
+  border-radius: 20px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Vazirmatn", Tahoma, sans-serif !important;
+  animation: moeinModalIn 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+  box-sizing: border-box !important;
+  color: #202124 !important;
+}
+
+.moein-modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 16px 20px !important;
+  border-bottom: 1px solid #f1f3f4 !important;
+  flex-shrink: 0 !important;
+}
+
+.moein-modal-title {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #202124 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.moein-modal-close {
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #5f6368 !important;
+  font-size: 20px !important;
+  line-height: 1 !important;
+  transition: all 0.15s !important;
+}
+
+.moein-modal-close:hover {
+  background: #f1f3f4 !important;
+  color: #202124 !important;
+}
+
+/* Modal Tabs Header */
+.moein-modal-tabs {
+  display: flex !important;
+  background: #f1f3f4 !important;
+  padding: 4px !important;
+  border-radius: 12px !important;
+  margin: 14px 20px 0 20px !important;
+  gap: 4px !important;
+  flex-shrink: 0 !important;
+}
+
+.moein-modal-tab {
+  flex: 1 !important;
+  text-align: center !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  color: #5f6368 !important;
+  transition: all 0.15s !important;
+  border: none !important;
+  background: transparent !important;
+  font-family: inherit !important;
+}
+
+.moein-modal-tab.active {
+  background: #ffffff !important;
+  color: #1a73e8 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Modal Scrollable Body */
+.moein-modal-body {
+  padding: 16px 20px !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  max-height: 420px !important;
+  box-sizing: border-box !important;
+}
+
+.moein-modal-label {
+  display: block !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #3c4043 !important;
+  margin-bottom: 6px !important;
+  text-align: right !important;
+}
+
+.moein-modal-input {
+  width: 100% !important;
+  height: 40px !important;
+  border: 1.5px solid #dadce0 !important;
+  border-radius: 10px !important;
+  padding: 0 12px !important;
+  font-size: 13px !important;
+  color: #202124 !important;
+  box-sizing: border-box !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+  outline: none !important;
+  margin-bottom: 12px !important;
+  font-family: inherit !important;
+  direction: rtl !important;
+  text-align: right !important;
+  background: #ffffff !important;
+}
+
+.moein-modal-input:focus {
+  border-color: #1a73e8 !important;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15) !important;
+}
+
+.moein-modal-help {
+  font-size: 11px !important;
+  color: #5f6368 !important;
+  margin-top: -6px !important;
+  margin-bottom: 12px !important;
+  line-height: 1.4 !important;
+}
+
+/* Modal Footer Buttons */
+.moein-modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  padding: 12px 20px !important;
+  border-top: 1px solid #f1f3f4 !important;
+  background: #fafafa !important;
+  flex-shrink: 0 !important;
+}
+
+.moein-btn-primary {
+  background: #1a73e8 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  height: 38px !important;
+  padding: 0 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 0.15s, transform 0.1s !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  font-family: inherit !important;
+}
+
+.moein-btn-primary:hover {
+  background: #1557b0 !important;
+}
+
+.moein-btn-primary:disabled {
+  background: #dadce0 !important;
+  color: #80868b !important;
+  cursor: not-allowed !important;
+}
+
+.moein-btn-secondary {
+  background: #f1f3f4 !important;
+  color: #3c4043 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  height: 38px !important;
+  padding: 0 18px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: background 0.15s !important;
+  font-family: inherit !important;
+}
+
+.moein-btn-secondary:hover {
+  background: #e8eaed !important;
+  color: #202124 !important;
+}
+
+.moein-btn-danger {
+  background: #d93025 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  height: 38px !important;
+  padding: 0 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background 0.15s !important;
+  font-family: inherit !important;
+}
+
+.moein-btn-danger:hover {
+  background: #b3261e !important;
+}
+
+/* Chrome Bookmark Folder and Item Rows */
+.moein-bm-folder-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 12px !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+  border: 1px solid #e8eaed !important;
+  background: #f8f9fa !important;
+  transition: all 0.15s !important;
+  box-sizing: border-box !important;
+}
+
+.moein-bm-folder-row:hover {
+  background: #e8f0fe !important;
+  border-color: #d2e3fc !important;
+}
+
+.moein-bm-folder-info {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  overflow: hidden !important;
+}
+
+.moein-bm-folder-icon {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  background: #fef7e0 !important;
+  color: #f29900 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+}
+
+.moein-bm-folder-details {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+.moein-bm-folder-title {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #202124 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.moein-bm-folder-path {
+  font-size: 11px !important;
+  color: #5f6368 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.moein-bm-folder-action {
+  flex-shrink: 0 !important;
+  margin-right: 8px !important;
+}
+
+.moein-bm-btn-import {
+  background: #ffffff !important;
+  border: 1px solid #dadce0 !important;
+  color: #1a73e8 !important;
+  font-weight: 600 !important;
+  font-size: 11px !important;
+  padding: 6px 12px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.15s !important;
+  font-family: inherit !important;
+}
+
+.moein-bm-btn-import:hover {
+  background: #1a73e8 !important;
+  color: #ffffff !important;
+  border-color: #1a73e8 !important;
+}
+
+/* Bookmark Checklist in Modal */
+.moein-bm-list-container {
+  border: 1px solid #e8eaed !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  margin-top: 10px !important;
+}
+
+.moein-bm-list-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: #f8f9fa !important;
+  padding: 8px 12px !important;
+  border-bottom: 1px solid #e8eaed !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+}
+
+.moein-bm-list-items {
+  max-height: 240px !important;
+  overflow-y: auto !important;
+  padding: 4px !important;
+  box-sizing: border-box !important;
+}
+
+.moein-bm-check-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 8px 10px !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: background 0.15s !important;
+  border-bottom: 1px solid #f8f9fa !important;
+  user-select: none !important;
+}
+
+.moein-bm-check-item:hover {
+  background: #f1f3f4 !important;
+}
+
+.moein-bm-check-item input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  cursor: pointer !important;
+  accent-color: #1a73e8 !important;
+  margin: 0 !important;
+}
+
+.moein-bm-check-icon {
+  width: 22px !important;
+  height: 22px !important;
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08) !important;
+  overflow: hidden !important;
+}
+
+.moein-bm-check-icon img {
+  width: 14px !important;
+  height: 14px !important;
+  object-fit: contain !important;
+}
+
+.moein-bm-check-text {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  flex: 1 !important;
+}
+
+.moein-bm-check-title {
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  color: #202124 !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.moein-bm-check-url {
+  font-size: 10px !important;
+  color: #80868b !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  direction: ltr !important;
+  text-align: right !important;
+}
+
+/* Search box inside modals */
+.moein-modal-search-box {
+  position: relative !important;
+  margin-bottom: 12px !important;
+}
+
+.moein-modal-search-box input {
+  padding-right: 36px !important;
+}
+
+.moein-modal-search-icon {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #5f6368 !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Folder level checkable row in modal */
+.moein-bm-folder-check-row {
+  display: flex !important;
+  flex-direction: column !important;
+  border-radius: 12px !important;
+  margin-bottom: 8px !important;
+  border: 1px solid #e8eaed !important;
+  background: #f8f9fa !important;
+  transition: all 0.15s !important;
+  overflow: hidden !important;
+}
+
+.moein-bm-folder-check-row:hover {
+  background: #f1f3f4 !important;
+  border-color: #dadce0 !important;
+}
+
+.moein-bm-folder-main {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 10px 12px !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+
+.moein-bm-folder-lead {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  flex: 1 !important;
+  overflow: hidden !important;
+}
+
+.moein-bm-folder-lead input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  cursor: pointer !important;
+  accent-color: #1a73e8 !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+}
+
+.moein-bm-expand-btn {
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #5f6368 !important;
+  transition: transform 0.2s, background 0.15s !important;
+  flex-shrink: 0 !important;
+  padding: 0 !important;
+}
+
+.moein-bm-expand-btn:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #202124 !important;
+}
+
+.moein-bm-expand-btn.expanded svg {
+  transform: rotate(180deg) !important;
+}
+
+/* Nested Bookmarks under a Folder */
+.moein-bm-nested-list {
+  background: #ffffff !important;
+  border-top: 1px solid #e8eaed !important;
+  padding: 4px 8px 6px 8px !important;
+  display: none;
+}
+
+.moein-bm-nested-list.open {
+  display: block !important;
+}
+
+/* Responsive grid layouts */
+@media (max-width: 1100px) {
+  #moein-shortcuts-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 820px) {
+  #moein-shortcuts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 520px) {
+  #moein-shortcuts-grid {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Toast Message */
+.moein-toast {
+  position: fixed !important;
+  bottom: 28px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: rgba(32, 33, 36, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+  color: #ffffff !important;
+  padding: 10px 22px !important;
+  border-radius: 30px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  z-index: 200000 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25) !important;
+  animation: moeinFadeIn 0.2s ease !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Vazirmatn", Tahoma, sans-serif !important;
+  direction: rtl !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  pointer-events: none !important;
+}
+
+/* Color Picker Popover (Color Wheel) */
+.moein-color-picker-popover {
+  position: fixed !important;
+  z-index: 100000 !important;
+  width: 184px !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  padding: 10px 10px 12px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  direction: rtl !important;
+  box-sizing: border-box !important;
+  animation: moeinColorPopFade 0.2s cubic-bezier(0.2, 0, 0, 1) !important;
+  user-select: none !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Vazirmatn", Tahoma, sans-serif !important;
+}
+
+@keyframes moeinColorPopFade {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.moein-color-popover-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  padding: 0 2px !important;
+}
+
+.moein-color-popover-title {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #3c4043 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+}
+
+.moein-color-popover-close {
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  color: #5f6368 !important;
+  padding: 2px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.moein-color-popover-close:hover {
+  background: rgba(0, 0, 0, 0.08) !important;
+  color: #202124 !important;
+}
+
+.moein-color-wheel-container {
+  position: relative !important;
+  width: 140px !important;
+  height: 140px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.moein-color-wheel-canvas {
+  width: 140px !important;
+  height: 140px !important;
+  border-radius: 50% !important;
+  cursor: crosshair !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), inset 0 0 0 1px rgba(0, 0, 0, 0.08) !important;
+  display: block !important;
+}
+
+.moein-color-marker {
+  position: absolute !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  border: 2px solid #ffffff !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5) !important;
+  pointer-events: none !important;
+  transform: translate(-50%, -50%) !important;
+  display: none;
+  box-sizing: border-box !important;
+  z-index: 2 !important;
+}
+
+.moein-color-presets-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  width: 100% !important;
+  padding: 2px 0 !important;
+}
+
+.moein-color-preset-dot {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.15) !important;
+  cursor: pointer !important;
+  transition: transform 0.15s ease, border-color 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.moein-color-preset-dot:hover {
+  transform: scale(1.28) !important;
+  border-color: #1a73e8 !important;
+}
+
+.moein-color-reset-btn {
+  background: rgba(241, 243, 244, 0.9) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  border-radius: 12px !important;
+  color: #3c4043 !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  width: 100% !important;
+  text-align: center !important;
+  font-family: inherit !important;
+}
+
+.moein-color-reset-btn:hover {
+  background: #e8eaed !important;
+  color: #1a73e8 !important;
+  border-color: rgba(26, 115, 232, 0.25) !important;
+}

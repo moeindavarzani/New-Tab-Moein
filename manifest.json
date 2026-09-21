@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Tab Moein",
+  "version": "3.12.0",
+  "description": "سفارشی سازی زبانه جدید و گوگل - Tab Moein",
+  "icons": {
+    "128": "icon128.png"
+  },
+  "permissions": [
+    "tabs",
+    "scripting",
+    "activeTab",
+    "bookmarks",
+    "storage",
+    "webNavigation"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "css": [
+        "google_custom.css"
+      ],
+      "js": [
+        "google_custom.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "chrome_url_overrides": {
+    "newtab": "newtab.html"
+  }
+}

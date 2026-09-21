@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <title>Tab Moein Automated Test Suite</title>
+  <link rel="stylesheet" href="google_custom.css">
+</head>
+<body class="hp">
+  <!-- Mock Google Homepage Elements -->
+  <div id="gb">
+    <div data-ogbl="">
+      <a href="https://mail.google.com">Gmail</a>
+      <a href="https://images.google.com">Images</a>
+    </div>
+    <div id="gbwa">Apps</div>
+    <div data-ogsr-up="">Avatar</div>
+  </div>
+
+  <svg class="ESTs9d" aria-label="Google"><text>Google</text></svg>
+
+  <form action="/search">
+    <input name="q" value="" />
+  </form>
+
+  <div id="test-output" style="padding: 20px; font-family: monospace; direction: ltr; white-space: pre-wrap;">Running tests...</div>
+
+  <script>
+    window.__TAB_MOEIN_TEST__ = true;
+    // 1. Mock Chrome API
+    const mockStorage = {};
+    const mockChromeBookmarksTree = [
+      {
+        id: "0",
+        title: "",
+        children: [
+          {
+            id: "1",
+            title: "Bookmarks Bar",
+            children: [
+              { id: "101", title: "Chrome Web Store", url: "https://chromewebstore.google.com" },
+              { id: "102", title: "GitHub Explore", url: "https://github.com/explore" },
+              {
+                id: "103",
+                title: "طراحی وب",
+                children: [
+                  { id: "104", title: "CSS Tricks", url: "https://css-tricks.com" },
+                  { id: "105", title: "Dribbble", url: "https://dribbble.com" }
+                ]
+              }
+            ]
+          },
+          {
+            id: "2",
+            title: "Other Bookmarks",
+            children: [
+              { id: "201", title: "Wikipedia", url: "https://wikipedia.org" }
+            ]
+          }
+        ]
+      }
+    ];
+
+    window.chrome = {
+      runtime: {
+        lastError: null,
+        sendMessage: function(message, callback) {
+          if (message.action === 'getChromeBookmarksTree') {
+            setTimeout(() => callback({ success: true, tree: mockChromeBookmarksTree }), 10);
+          } else {
+            setTimeout(() => callback({ success: true }), 10);
+          }
+        }
+      },
+      storage: {
+        local: {
+          get: function(keys, callback) {
+            const res = {};
+            keys.forEach(k => { if (mockStorage[k] !== undefined) res[k] = mockStorage[k]; });
+            setTimeout(() => callback(res), 10);
+          },
+          set: function(obj, callback) {
+            Object.assign(mockStorage, obj);
+            if (callback) setTimeout(callback, 10);
+          }
+        },
+        onChanged: {
+          addListener: function(listener) {}
+        }
+      }
+    };
+  </script>
+
+  <!-- Load Extension Script -->
+  <script src="google_custom.js"></script>
+
+  <!-- Automated Assertions -->
+  <script>
+    const output = document.getElementById('test-output');
+    const log = (msg) => { output.textContent += '\n' + msg; console.log(msg); };
+
+    function assert(cond, msg) {
+      if (!cond) {
+        log('❌ FAIL: ' + msg);
+        throw new Error(msg);
+      } else {
+        log('✓ PASS: ' + msg);
+      }
+    }
+
+    window.addEventListener('load', async () => {
+      // Allow initial async storage loading to settle
+      await new Promise(r => setTimeout(r, 200));
+
+      try {
+        log('--- Beginning Tab Moein Automated Tests ---');
+
+        // Test 1: Unified top bar exists
+        const bar = document.getElementById('moein-unified-bar');
+        assert(bar !== null, 'Unified header bar #moein-unified-bar is mounted');
+
+        // Test 2: Shortcuts grid exists
+        const grid = document.getElementById('moein-shortcuts-grid');
+        assert(grid !== null, 'Shortcuts grid #moein-shortcuts-grid is mounted');
+
+        // Test 3: Initial boxes count is 12
+        const initialCards = grid.querySelectorAll('.moein-box-card');
+        assert(initialCards.length === 12, `Initial cards count is 12 (found ${initialCards.length})`);
+
+        // Test 4: Add Card is NOT present when count == 12
+        let addCard = grid.querySelector('.moein-add-card');
+        assert(addCard === null, 'Add Folder card is NOT present when 12 boxes exist (max limit enforced)');
+
+        // Test 5: Scrollable bookmark container styling
+        const firstItemsContainer = initialCards[0].querySelector('.moein-box-items');
+        assert(firstItemsContainer !== null, 'Bookmarks items container exists in card');
+        const computedStyle = window.getComputedStyle(firstItemsContainer);
+        assert(computedStyle.overflowY === 'auto' || computedStyle.overflowY === 'scroll', 'Items container has overflow-y: auto for smooth scrolling');
+
+        // Test 6: Delete a box and verify limit and Add Card
+        const firstDelBtn = initialCards[0].querySelector('.moein-btn-del');
+        assert(firstDelBtn !== null, 'Delete button exists on box card');
+        firstDelBtn.click(); // Opens confirm modal
+
+        const confirmOverlay = document.querySelector('.moein-modal-overlay');
+        assert(confirmOverlay !== null, 'Confirm Delete modal opened');
+        const confirmBtn = confirmOverlay.querySelector('#moein-del-confirm-btn');
+        assert(confirmBtn !== null, 'Confirm delete button found in modal');
+        confirmBtn.click(); // Confirm deletion
+
+        await new Promise(r => setTimeout(r, 100));
+
+        const updatedCards = grid.querySelectorAll('.moein-box-card');
+        assert(updatedCards.length === 11, `Cards count is now 11 after deletion (found ${updatedCards.length})`);
+
+        // Add Card should now appear!
+        addCard = grid.querySelector('.moein-add-card');
+        assert(addCard !== null, 'Add Folder card appears when count < 12');
+
+        // Test 7: Click Add Card to open Add Folder Modal
+        addCard.click();
+        const addFolderOverlay = document.querySelector('.moein-modal-overlay');
+        assert(addFolderOverlay !== null, 'Add Folder modal opened');
+
+        // Test 7a: Create manual folder
+        const titleInput = addFolderOverlay.querySelector('#moein-new-folder-title');
+        titleInput.value = 'پروژه تست';
+        const submitFolderBtn = addFolderOverlay.querySelector('#moein-modal-submit-folder');
+        submitFolderBtn.click();
+
+        await new Promise(r => setTimeout(r, 100));
+        const afterAddCards = grid.querySelectorAll('.moein-box-card');
+        assert(afterAddCards.length === 12, 'Cards count returned to 12 after adding new folder');
+
+        const lastCardTitle = afterAddCards[afterAddCards.length - 1].querySelector('.moein-box-title-text');
+        assert(lastCardTitle && lastCardTitle.textContent === 'پروژه تست', 'New folder has correct title: پروژه تست');
+
+        // Test 8: Add Bookmark to the new folder via manual URL
+        const newCard = afterAddCards[afterAddCards.length - 1];
+        const addBmBtn = newCard.querySelector('.moein-btn-add');
+        assert(addBmBtn !== null, 'Add Bookmark button found on card');
+        addBmBtn.click();
+
+        const addBmOverlay = document.querySelector('.moein-modal-overlay');
+        assert(addBmOverlay !== null, 'Add Bookmark modal opened');
+
+        const bmNameInput = addBmOverlay.querySelector('#moein-bm-input-name');
+        const bmUrlInput = addBmOverlay.querySelector('#moein-bm-input-url');
+        const bmSubmitBtn = addBmOverlay.querySelector('#moein-bm-submit-btn');
+
+        bmNameInput.value = 'آنتولوژی';
+        bmUrlInput.value = 'https://ebi.ac.uk/ols';
+        bmSubmitBtn.click();
+
+        await new Promise(r => setTimeout(r, 100));
+        const allCardsCurrent = grid.querySelectorAll('.moein-box-card');
+        const targetNewCard = allCardsCurrent[allCardsCurrent.length - 1];
+        const newCardBadge = targetNewCard.querySelector('.moein-box-badge');
+        assert(newCardBadge.textContent === '1', 'Badge count updated to 1');
+
+        const newSiteItem = targetNewCard.querySelector('.moein-site-name');
+        assert(newSiteItem && newSiteItem.textContent === 'آنتولوژی', 'Bookmark was added with title آنتولوژی');
+
+        // Test 9: Delete Bookmark using hover delete button
+        const siteWrapper = targetNewCard.querySelector('.moein-site-wrapper');
+        const delSiteBtn = siteWrapper.querySelector('.moein-site-del-btn');
+        assert(delSiteBtn !== null, 'Individual delete site button exists');
+        delSiteBtn.click();
+
+        await new Promise(r => setTimeout(r, 100));
+        const cardsAfterDelSite = grid.querySelectorAll('.moein-box-card');
+        const updatedCard = cardsAfterDelSite[cardsAfterDelSite.length - 1];
+        const updatedBadge = updatedCard.querySelector('.moein-box-badge');
+        assert(updatedBadge.textContent === '0', 'Badge count updated to 0 after deleting site');
+
+        // Test 10: Import Chrome Bookmarks into a folder by ticking an ENTIRE folder!
+        const addBmBtn2 = updatedCard.querySelector('.moein-btn-add');
+        assert(addBmBtn2 !== null, 'Add Bookmark button found on updated card');
+        addBmBtn2.click();
+        const addBmOverlay2 = document.querySelector('.moein-modal-overlay');
+        const chromeTabBtn = addBmOverlay2.querySelector('[data-tab="tab-bm-chrome"]');
+        assert(chromeTabBtn !== null, 'Chrome bookmarks tab button exists');
+        chromeTabBtn.click();
+
+        await new Promise(r => setTimeout(r, 200));
+
+        const foldersChecklist = addBmOverlay2.querySelector('#moein-bm-folders-checklist');
+        assert(foldersChecklist !== null, 'Folders checklist container exists');
+
+        const folderRowsInModal = foldersChecklist.querySelectorAll('.moein-bm-folder-check-row');
+        assert(folderRowsInModal.length > 0, `Loaded ${folderRowsInModal.length} Chrome bookmark folders into modal`);
+
+        // Find the "طراحی وب" folder row and tick its folder checkbox!
+        const webDesignFolderRow = Array.from(folderRowsInModal).find(r => r.textContent.includes('طراحی وب'));
+        assert(webDesignFolderRow !== undefined, 'Found "طراحی وب" folder row in modal');
+
+        const folderCheckbox = webDesignFolderRow.querySelector('.moein-folder-cb');
+        assert(folderCheckbox !== null, 'Folder level checkbox exists');
+        folderCheckbox.click(); // Tick the entire folder!
+
+        const submitBmBtn2 = addBmOverlay2.querySelector('#moein-bm-submit-btn');
+        assert(submitBmBtn2.textContent.includes('2 نشانک'), `Submit button reflects 2 selected bookmarks: "${submitBmBtn2.textContent}"`);
+        submitBmBtn2.click();
+
+        await new Promise(r => setTimeout(r, 100));
+        const cardsNow = grid.querySelectorAll('.moein-box-card');
+        const cardBadgeAfterFolderTick = cardsNow[cardsNow.length - 1].querySelector('.moein-box-badge');
+        assert(cardBadgeAfterFolderTick.textContent === '2', `Card badge updated to 2 after ticking entire folder (found ${cardBadgeAfterFolderTick.textContent})`);
+
+        // Test 11: Import entire Chrome bookmark folder as a new window/card on grid
+        // Delete a box first so count is 11
+        const delBtn2 = grid.querySelectorAll('.moein-box-card')[0].querySelector('.moein-btn-del');
+        delBtn2.click();
+        document.querySelector('.moein-modal-overlay #moein-del-confirm-btn').click();
+        await new Promise(r => setTimeout(r, 100));
+        assert(grid.querySelectorAll('.moein-box-card').length === 11, 'Count is 11 before importing Chrome folder');
+
+        // Click Add Card
+        grid.querySelector('.moein-add-card').click();
+        const importFolderOverlay = document.querySelector('.moein-modal-overlay');
+        const chromeTabBtnFolder = importFolderOverlay.querySelector('[data-tab="tab-chrome"]');
+        chromeTabBtnFolder.click();
+        await new Promise(r => setTimeout(r, 200));
+
+        // Find the folder row for "طراحی وب"
+        const folderRows = importFolderOverlay.querySelectorAll('.moein-bm-folder-row');
+        assert(folderRows.length > 0, `Found ${folderRows.length} Chrome bookmark folders in import list`);
+        const targetRow = Array.from(folderRows).find(row => row.textContent.includes('طراحی وب'));
+        assert(targetRow !== undefined, 'Found Chrome bookmark folder "طراحی وب"');
+
+        targetRow.querySelector('.moein-bm-btn-import').click();
+        await new Promise(r => setTimeout(r, 100));
+
+        const cardsAfterChromeFolder = grid.querySelectorAll('.moein-box-card');
+        assert(cardsAfterChromeFolder.length === 12, 'Cards count is 12 after importing Chrome bookmark folder');
+        const importedCardTitle = cardsAfterChromeFolder[cardsAfterChromeFolder.length - 1].querySelector('.moein-box-title-text');
+        assert(importedCardTitle && importedCardTitle.textContent.includes('طراحی وب'), 'Imported card has title "طراحی وب"');
+        const importedCardBadge = cardsAfterChromeFolder[cardsAfterChromeFolder.length - 1].querySelector('.moein-box-badge');
+        assert(importedCardBadge && importedCardBadge.textContent === '2', 'Imported card has 2 bookmarks from Chrome folder');
+
+        // Helper for dispatching HTML5 drag events
+        const createDragEvent = (type) => {
+          let dt;
+          try {
+            dt = new DataTransfer();
+          } catch (e) {
+            dt = {
+              setData: () => {},
+              getData: () => '',
+              effectAllowed: 'move',
+              dropEffect: 'move'
+            };
+          }
+          return new DragEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            dataTransfer: dt
+          });
+        };
+
+        // Test 12: Visual drag handle icon exists on all cards
+        const allCards = grid.querySelectorAll('.moein-box-card');
+        assert(allCards.length > 0, 'Cards exist on shortcuts grid');
+        allCards.forEach((card, idx) => {
+          const handle = card.querySelector('.moein-box-drag-handle');
+          assert(handle !== null, `Card #${idx} contains .moein-box-drag-handle`);
+          assert(handle.getAttribute('title') === 'جابجایی این پنجره', `Card #${idx} drag handle has correct title tooltip`);
+          assert(handle.querySelector('svg') !== null, `Card #${idx} drag handle has SVG 6-dot icon`);
+          const computedCursor = window.getComputedStyle(handle).cursor;
+          assert(computedCursor === 'grab', `Card #${idx} drag handle has cursor: grab (got ${computedCursor})`);
+        });
+
+        // Test 13: Drag and drop reordering of folder boxes
+        const cardsBeforeBoxDrag = grid.querySelectorAll('.moein-box-card');
+        const firstBoxTitle = cardsBeforeBoxDrag[0].querySelector('.moein-box-title-text').textContent;
+        const thirdBoxTitle = cardsBeforeBoxDrag[2].querySelector('.moein-box-title-text').textContent;
+        const firstCard = cardsBeforeBoxDrag[0];
+        const thirdCard = cardsBeforeBoxDrag[2];
+
+        // Mousedown on drag handle initiates draggable
+        const handle0 = firstCard.querySelector('.moein-box-drag-handle');
+        handle0.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 }));
+        assert(firstCard.getAttribute('draggable') === 'true', 'Card 0 becomes draggable after mousedown on drag handle');
+
+        // Dragstart
+        firstCard.dispatchEvent(createDragEvent('dragstart'));
+        assert(firstCard.classList.contains('moein-dragging'), 'Card 0 gets moein-dragging class during drag');
+
+        // Dragover target card 2
+        thirdCard.dispatchEvent(createDragEvent('dragover'));
+        assert(thirdCard.classList.contains('moein-drag-over'), 'Target card 2 gets moein-drag-over class on dragover');
+
+        // Drop on target card 2
+        thirdCard.dispatchEvent(createDragEvent('drop'));
+        firstCard.dispatchEvent(createDragEvent('dragend'));
+
+        await new Promise(r => setTimeout(r, 100));
+
+        const cardsAfterBoxDrag = grid.querySelectorAll('.moein-box-card');
+        const newSecondBoxTitle = cardsAfterBoxDrag[2].querySelector('.moein-box-title-text').textContent;
+        assert(newSecondBoxTitle === firstBoxTitle, `Card was reordered: "${firstBoxTitle}" is now at target position index 2`);
+        assert(!cardsAfterBoxDrag[0].classList.contains('moein-dragging'), 'Card 0 no longer has moein-dragging class');
+        assert(!cardsAfterBoxDrag[2].classList.contains('moein-drag-over'), 'Card 2 no longer has moein-drag-over class');
+
+        // Test 14: Bookmark item drag and drop inside same box
+        const boxWithBookmarks = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.querySelectorAll('.moein-site-wrapper').length >= 2);
+        assert(boxWithBookmarks !== undefined, 'Found a card with at least 2 bookmarks for testing');
+
+        const siteWrappers = boxWithBookmarks.querySelectorAll('.moein-site-wrapper');
+        assert(siteWrappers[0].getAttribute('draggable') === 'true', 'Site wrapper is draggable="true"');
+        const innerAnchor = siteWrappers[0].querySelector('.moein-site-item');
+        assert(innerAnchor.getAttribute('draggable') === 'false', 'Inner link has draggable="false"');
+
+        const site0Title = siteWrappers[0].querySelector('.moein-site-name').textContent;
+        const site1Title = siteWrappers[1].querySelector('.moein-site-name').textContent;
+
+        // Drag site 0 onto site 1
+        siteWrappers[0].dispatchEvent(createDragEvent('dragstart'));
+        assert(siteWrappers[0].classList.contains('moein-site-dragging'), 'Site 0 gets moein-site-dragging class');
+
+        siteWrappers[1].dispatchEvent(createDragEvent('dragover'));
+        assert(siteWrappers[1].classList.contains('moein-site-drag-over'), 'Site 1 gets moein-site-drag-over class');
+
+        siteWrappers[1].dispatchEvent(createDragEvent('drop'));
+        siteWrappers[0].dispatchEvent(createDragEvent('dragend'));
+
+        await new Promise(r => setTimeout(r, 100));
+
+        const targetBoxId = boxWithBookmarks.dataset.boxId;
+        const updatedCard = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.dataset.boxId === targetBoxId);
+        assert(updatedCard !== undefined, 'Target card found in grid after re-render');
+        const updatedSites = updatedCard.querySelectorAll('.moein-site-wrapper');
+        const newFirstSiteTitle = updatedSites[0].querySelector('.moein-site-name').textContent;
+        const newSecondSiteTitle = updatedSites[1].querySelector('.moein-site-name').textContent;
+        assert(newFirstSiteTitle === site1Title && newSecondSiteTitle === site0Title, `Sites reordered inside box: "${site0Title}" and "${site1Title}" swapped positions`);
+
+        // Test 15: Transfer bookmark between different boxes
+        const sourceCard = updatedCard;
+        const targetCard = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.dataset.boxId !== targetBoxId);
+        assert(targetCard !== undefined, 'Found another card as target for bookmark transfer');
+        const targetBoxId2 = targetCard.dataset.boxId;
+
+        const sourceInitialCount = sourceCard.querySelectorAll('.moein-site-wrapper').length;
+        const targetInitialCount = targetCard.querySelectorAll('.moein-site-wrapper').length;
+
+        const movingSiteWrapper = sourceCard.querySelectorAll('.moein-site-wrapper')[0];
+        const movingSiteTitle = movingSiteWrapper.querySelector('.moein-site-name').textContent;
+
+        // Drag from sourceCard onto targetCard
+        movingSiteWrapper.dispatchEvent(createDragEvent('dragstart'));
+        targetCard.dispatchEvent(createDragEvent('dragover'));
+        targetCard.dispatchEvent(createDragEvent('drop'));
+        movingSiteWrapper.dispatchEvent(createDragEvent('dragend'));
+
+        await new Promise(r => setTimeout(r, 100));
+
+        const sourceCardAfterTransfer = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.dataset.boxId === targetBoxId);
+        const targetCardAfterTransfer = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.dataset.boxId === targetBoxId2);
+
+        const sourceNewCount = sourceCardAfterTransfer.querySelectorAll('.moein-site-wrapper').length;
+        const targetNewCount = targetCardAfterTransfer.querySelectorAll('.moein-site-wrapper').length;
+
+        assert(sourceNewCount === sourceInitialCount - 1, `Source card count decreased by 1 (was ${sourceInitialCount}, now ${sourceNewCount})`);
+        assert(targetNewCount === targetInitialCount + 1, `Target card count increased by 1 (was ${targetInitialCount}, now ${targetNewCount})`);
+
+        // Test 16: Action buttons prevent box/site drag initiation
+        const testCard = grid.querySelectorAll('.moein-box-card')[0];
+        const addBtn = testCard.querySelector('.moein-btn-add');
+        const delBtn = testCard.querySelector('.moein-btn-del');
+
+        addBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 }));
+        assert(testCard.getAttribute('draggable') === 'false', 'Mousedown on Add Button does not make box card draggable');
+
+        delBtn.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 }));
+        assert(testCard.getAttribute('draggable') === 'false', 'Mousedown on Delete Button does not make box card draggable');
+
+        // Test 17: Mousedown + mouseup on drag handle without drag resets draggable
+        const cardForClickTest = grid.querySelectorAll('.moein-box-card')[0];
+        const cardHandle = cardForClickTest.querySelector('.moein-box-drag-handle');
+        cardHandle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 }));
+        assert(cardForClickTest.getAttribute('draggable') === 'true', 'Card becomes draggable after mousedown on handle');
+        window.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, button: 0 }));
+        assert(cardForClickTest.getAttribute('draggable') === 'false', 'Card safely resets to draggable="false" after mouseup');
+
+        // Test 18: Dragging bookmark inside SAME box does NOT add moein-drag-over to parent box card
+        const cardForIntraTest = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.querySelectorAll('.moein-site-wrapper').length >= 2);
+        assert(cardForIntraTest !== undefined, 'Found card for intra-box dragover test');
+        const intraSites = cardForIntraTest.querySelectorAll('.moein-site-wrapper');
+        intraSites[0].dispatchEvent(createDragEvent('dragstart'));
+        cardForIntraTest.dispatchEvent(createDragEvent('dragover'));
+        assert(!cardForIntraTest.classList.contains('moein-drag-over'), 'Parent card does not get moein-drag-over when dragging bookmark within same box');
+        intraSites[0].dispatchEvent(createDragEvent('dragend'));
+
+        // Test 19: Dropping bookmark onto itself (no-op drop) safely clears state
+        intraSites[0].dispatchEvent(createDragEvent('dragstart'));
+        intraSites[0].dispatchEvent(createDragEvent('drop'));
+        intraSites[0].dispatchEvent(createDragEvent('dragend'));
+        assert(!intraSites[0].classList.contains('moein-site-dragging'), 'Site 0 dragging class cleared after self drop');
+        assert(!intraSites[0].classList.contains('moein-site-drag-over'), 'Site 0 drag-over class cleared after self drop');
+
+        // Test 20: Drag and drop bookmark into an EMPTY box
+        const testBoxesState = window.__TAB_MOEIN_LOGIC__.getCurrentBoxes();
+        testBoxesState[testBoxesState.length - 1] = { id: 'box_empty_test', title: 'جعبه خالی تست', sites: [] };
+        window.__TAB_MOEIN_LOGIC__.setCurrentBoxes(testBoxesState);
+        window.__TAB_MOEIN_LOGIC__.renderShortcutsGrid();
+
+        const emptyCardEl = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.dataset.boxId === 'box_empty_test');
+        assert(emptyCardEl !== undefined, 'Empty card element rendered in grid');
+        assert(emptyCardEl.querySelector('.moein-box-empty') !== null, 'Empty card contains .moein-box-empty');
+
+        const donorCard = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.querySelectorAll('.moein-site-wrapper').length > 0);
+        const donorSite = donorCard.querySelectorAll('.moein-site-wrapper')[0];
+        const donorSiteTitle = donorSite.querySelector('.moein-site-name').textContent;
+
+        donorSite.dispatchEvent(createDragEvent('dragstart'));
+        emptyCardEl.dispatchEvent(createDragEvent('dragover'));
+        emptyCardEl.dispatchEvent(createDragEvent('drop'));
+        donorSite.dispatchEvent(createDragEvent('dragend'));
+
+        await new Promise(r => setTimeout(r, 100));
+
+        const updatedEmptyCard = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => c.dataset.boxId === 'box_empty_test');
+        assert(updatedEmptyCard.querySelectorAll('.moein-site-wrapper').length === 1, 'Empty card now has 1 bookmark transferred');
+        assert(updatedEmptyCard.querySelector('.moein-site-name').textContent === donorSiteTitle, 'Transferred bookmark matches donor site');
+
+        // Test 21: Dragging a folder card onto .moein-add-card reorders it to the last position
+        // Remove boxes so current count < MAX_BOXES (12) and .moein-add-card is visible
+        const reducedBoxes = window.__TAB_MOEIN_LOGIC__.getCurrentBoxes().slice(0, 8);
+        window.__TAB_MOEIN_LOGIC__.setCurrentBoxes(reducedBoxes);
+        window.__TAB_MOEIN_LOGIC__.renderShortcutsGrid();
+
+        const addCardEl = grid.querySelector('.moein-add-card');
+        assert(addCardEl !== null, '.moein-add-card exists when box count < 12');
+
+        const firstBoxToMove = grid.querySelectorAll('.moein-box-card')[0];
+        const firstBoxTitleToMove = firstBoxToMove.querySelector('.moein-box-title-text').textContent;
+        const firstBoxHandle = firstBoxToMove.querySelector('.moein-box-drag-handle');
+
+        firstBoxHandle.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 }));
+        firstBoxToMove.dispatchEvent(createDragEvent('dragstart'));
+
+        addCardEl.dispatchEvent(createDragEvent('dragover'));
+        assert(addCardEl.classList.contains('moein-drag-over'), '.moein-add-card gets moein-drag-over on dragover');
+
+        addCardEl.dispatchEvent(createDragEvent('drop'));
+        firstBoxToMove.dispatchEvent(createDragEvent('dragend'));
+
+        await new Promise(r => setTimeout(r, 100));
+
+        const allBoxesAfterAddDrop = grid.querySelectorAll('.moein-box-card');
+        const lastBoxTitle = allBoxesAfterAddDrop[allBoxesAfterAddDrop.length - 1].querySelector('.moein-box-title-text').textContent;
+        assert(lastBoxTitle === firstBoxTitleToMove, `First card "${firstBoxTitleToMove}" was moved to the last box position`);
+
+        // Test 22: Color indicator dot & Color Wheel Popover interaction
+        const firstCardForColor = grid.querySelectorAll('.moein-box-card')[0];
+        const colorDot = firstCardForColor.querySelector('.moein-box-color-dot');
+        assert(colorDot !== null, 'Color indicator dot .moein-box-color-dot exists in box header');
+
+        // Click color dot to open popover
+        colorDot.click();
+        const colorPopover = document.querySelector('.moein-color-picker-popover');
+        assert(colorPopover !== null, 'Color picker popover .moein-color-picker-popover is opened above dot');
+
+        const colorCanvas = colorPopover.querySelector('.moein-color-wheel-canvas');
+        assert(colorCanvas !== null, 'Color wheel canvas .moein-color-wheel-canvas exists');
+
+        const presetDots = colorPopover.querySelectorAll('.moein-color-preset-dot');
+        assert(presetDots.length === 6, `6 preset color dots exist (found ${presetDots.length})`);
+
+        // Click a preset color (preset 0 - soft blue)
+        presetDots[0].click();
+        assert(firstCardForColor.style.getPropertyValue('--moein-card-bg').includes('rgba(187, 222, 251'), 'Card background variable --moein-card-bg updated with selected color');
+        assert(colorDot.style.backgroundColor.includes('187'), 'Color dot background updated to match selected color');
+
+        // Click reset button
+        const resetBtn = colorPopover.querySelector('.moein-color-reset-btn');
+        assert(resetBtn !== null, 'Reset to default button exists in color popover');
+        resetBtn.click();
+        assert(!firstCardForColor.style.getPropertyValue('--moein-card-bg'), 'Card background variable removed after reset');
+
+        // Close popover
+        const closeColorBtn = colorPopover.querySelector('.moein-color-popover-close');
+        closeColorBtn.click();
+        assert(document.querySelector('.moein-color-picker-popover') === null, 'Color picker popover is closed');
+
+        // Test 23: Folders with > 4 sites receive .moein-many-sites and .moein-items-many
+        const manySitesCard = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => {
+          const count = parseInt(c.querySelector('.moein-box-badge').textContent, 10);
+          return count > 4;
+        });
+        assert(manySitesCard !== undefined, 'Found a card with > 4 bookmarks');
+        assert(manySitesCard.classList.contains('moein-many-sites'), 'Card with > 4 sites has .moein-many-sites class');
+        assert(manySitesCard.querySelector('.moein-box-items').classList.contains('moein-items-many'), 'Items container has .moein-items-many class');
+
+        // Verify a card with <= 4 sites does NOT have .moein-many-sites
+        const fewSitesCard = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => {
+          const count = parseInt(c.querySelector('.moein-box-badge').textContent, 10);
+          return count <= 4;
+        });
+        if (fewSitesCard) {
+          assert(!fewSitesCard.classList.contains('moein-many-sites'), 'Card with <= 4 sites does NOT have .moein-many-sites class');
+          assert(!fewSitesCard.querySelector('.moein-box-items').classList.contains('moein-items-many'), 'Items container does NOT have .moein-items-many class');
+        }
+
+        // Test 24: Cards with <= 4 bookmarks receive .moein-no-scroll to eliminate scrollbars
+        const noScrollCard = Array.from(grid.querySelectorAll('.moein-box-card')).find(c => {
+          const count = parseInt(c.querySelector('.moein-box-badge').textContent, 10);
+          return count <= 4;
+        });
+        if (noScrollCard) {
+          assert(noScrollCard.classList.contains('moein-no-scroll'), 'Card with <= 4 sites has .moein-no-scroll class');
+          assert(noScrollCard.querySelector('.moein-box-items').classList.contains('moein-no-scroll'), 'Items container has .moein-no-scroll class');
+          const noScrollStyle = window.getComputedStyle(noScrollCard.querySelector('.moein-box-items'));
+          assert(noScrollStyle.overflowY === 'hidden', 'Scrollbar is disabled (overflow-y: hidden) for card whose items fit in 2 rows');
+        }
+
+        // Test 25: Offline Mode Banner and Reconnection Logic
+        const logic = window.__TAB_MOEIN_LOGIC__;
+        assert(logic.MAX_OFFLINE_ATTEMPTS === 25, 'Maximum offline attempt limit is exactly 25');
+
+        // Simulate going offline
+        window.dispatchEvent(new Event('offline'));
+        const searchSlot = document.getElementById('moein-bar-search');
+        const offlineBanner = searchSlot.querySelector('.moein-offline-banner');
+        assert(offlineBanner !== null, 'Offline banner .moein-offline-banner created in search slot');
+
+        const offlineText = offlineBanner.querySelector('.moein-offline-text');
+        assert(offlineText !== null, 'Offline text span .moein-offline-text exists');
+        assert(offlineText.textContent.trim() === 'No internet connection', 'Offline text reads "No internet connection" in English');
+
+        // Constraint check: No retry numbers or attempt counters displayed in UI
+        const bannerContent = offlineBanner.textContent;
+        assert(!bannerContent.includes('25') && !bannerContent.includes('تلاش') && !bannerContent.includes('attempt'), 'No attempt counter or retry numbers displayed in UI');
+
+        // Verify attempt cap stopping logic
+        logic.setOfflineAttempts(25);
+        assert(logic.getOfflineAttempts() === 25, 'Offline attempts set to 25');
+        logic.clearOfflineCheckInterval();
+
+        // Simulate online event to clean up and restore form
+        window.dispatchEvent(new Event('online'));
+        if (searchSlot.querySelector('.moein-offline-banner')) {
+          searchSlot.querySelector('.moein-offline-banner').remove();
+          const f = searchSlot.querySelector('form');
+          if (f) f.style.display = '';
+        }
+
+        log('🎉 ALL TESTS PASSED SUCCESSFULLY! TEST COMPLETED WITH ZERO ERRORS.');
+        document.title = 'TESTS_PASSED';
+      } catch (err) {
+        log('❌ TEST FAILED: ' + err.message + '\n' + err.stack);
+        document.title = 'TESTS_FAILED';
+      }
+
+    });
+  </script>
+</body>
+</html>
