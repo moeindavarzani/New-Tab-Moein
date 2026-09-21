@@ -43,9 +43,25 @@ if (typeof chrome !== 'undefined' && chrome.webNavigation && chrome.webNavigatio
   chrome.webNavigation.onErrorOccurred.addListener((details) => {
     // Only intercept main frame (frameId === 0) navigations to Google domains
     if (details.frameId === 0 && details.url && (details.url.includes('google.com') || details.url.includes('google.'))) {
-      chrome.tabs.update(details.tabId, {
-        url: chrome.runtime.getURL('newtab.html?offline=1')
-      });
+      // Ignore normal navigation cancellations/aborts (e.g. when redirecting or clicking links)
+      if (details.error === 'net::ERR_ABORTED') {
+        return;
+      }
+
+      // Check for actual network disconnection or DNS failure errors
+      const err = details.error || '';
+      const isNetworkError = err.includes('DISCONNECTED') ||
+                             err.includes('NAME_NOT_RESOLVED') ||
+                             err.includes('TIMED_OUT') ||
+                             err.includes('ADDRESS_UNREACHABLE') ||
+                             err.includes('CONNECTION_RESET') ||
+                             err.includes('CONNECTION_REFUSED');
+
+      if (isNetworkError) {
+        chrome.tabs.update(details.tabId, {
+          url: chrome.runtime.getURL('newtab.html?offline=1')
+        });
+      }
     }
   });
 }
@@ -60,4 +76,5 @@ if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.onUpdated) {
     }
   });
 }
+
 

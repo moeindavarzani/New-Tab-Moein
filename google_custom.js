@@ -1970,6 +1970,46 @@
     }, 2000);
   };
 
+  const showGoogleOfflineBanner = () => {
+    const searchSlot = document.getElementById('moein-bar-search');
+    if (searchSlot && !searchSlot.querySelector('.moein-offline-banner')) {
+      const form = searchSlot.querySelector('form');
+      if (form) form.style.display = 'none';
+      const offlineBanner = document.createElement('div');
+      offlineBanner.className = 'moein-offline-banner';
+      offlineBanner.setAttribute('role', 'status');
+      offlineBanner.setAttribute('aria-label', 'No internet connection');
+      offlineBanner.innerHTML = `${wifiOffIconSvg}<span class="moein-offline-text">No internet connection</span>`;
+      offlineBanner.style.cursor = 'pointer';
+      offlineBanner.title = 'Click to check connection';
+      offlineBanner.addEventListener('click', async () => {
+        const isConnected = await checkConnectivity();
+        if (isConnected) {
+          hideGoogleOfflineBanner();
+        }
+      });
+      searchSlot.appendChild(offlineBanner);
+
+      startOfflineReconnectionChecker(() => {
+        hideGoogleOfflineBanner();
+      });
+    }
+  };
+
+  const hideGoogleOfflineBanner = () => {
+    const searchSlot = document.getElementById('moein-bar-search');
+    if (searchSlot) {
+      const banner = searchSlot.querySelector('.moein-offline-banner');
+      if (banner) banner.remove();
+      const form = searchSlot.querySelector('form');
+      if (form) form.style.display = '';
+    }
+    if (offlineCheckInterval) {
+      clearInterval(offlineCheckInterval);
+      offlineCheckInterval = null;
+    }
+  };
+
   // Google Homepage Layout Customizations
   const applyCustomizations = () => {
     if (!isHomePage()) return;
@@ -1978,8 +2018,70 @@
 
     document.body.classList.add('moein-tab-active');
 
-    const isOfflineMode = !navigator.onLine || location.search.includes('offline') || window.__TAB_MOEIN_OFFLINE__ || (location.protocol === 'chrome-extension:' && !window.__TAB_MOEIN_TEST__);
+    const isExtension = location.protocol === 'chrome-extension:';
 
+    // 1. If we are on newtab.html (extension page):
+    if (isExtension) {
+      if (!document.getElementById('moein-unified-bar')) {
+        const bar = document.createElement('div');
+        bar.id = 'moein-unified-bar';
+        bar.classList.add('moein-offline-mode');
+
+        // Slot 1: Google Logo
+        const logoSlot = document.createElement('div');
+        logoSlot.id = 'moein-bar-logo';
+        logoSlot.innerHTML = googleLogoSvg;
+        bar.appendChild(logoSlot);
+
+        // Slot 2: English Offline Message Banner
+        const searchSlot = document.createElement('div');
+        searchSlot.id = 'moein-bar-search';
+        const offlineBanner = document.createElement('div');
+        offlineBanner.className = 'moein-offline-banner';
+        offlineBanner.setAttribute('role', 'status');
+        offlineBanner.setAttribute('aria-label', 'No internet connection');
+        offlineBanner.innerHTML = `${wifiOffIconSvg}<span class="moein-offline-text">No internet connection</span>`;
+        offlineBanner.style.cursor = 'pointer';
+        offlineBanner.title = 'Click to check connection';
+        offlineBanner.addEventListener('click', async () => {
+          const isConnected = await checkConnectivity();
+          if (isConnected) redirectToGoogle();
+        });
+        searchSlot.appendChild(offlineBanner);
+        bar.appendChild(searchSlot);
+
+        // Slot 3: Balanced nav slot placeholder
+        const navSlot = document.createElement('div');
+        navSlot.id = 'moein-bar-nav';
+        navSlot.innerHTML = `<div class="moein-nav-grid-placeholder"></div>`;
+        bar.appendChild(navSlot);
+
+        // Insert at the top of the body
+        document.body.insertBefore(bar, document.body.firstChild);
+
+        // Start 2-second reconnect interval
+        startOfflineReconnectionChecker(redirectToGoogle);
+      }
+
+      // Assemble 2x5 Shortcuts Grid Container on newtab.html
+      const currentBar = document.getElementById('moein-unified-bar');
+      if (currentBar && !document.getElementById('moein-shortcuts-grid')) {
+        const grid = document.createElement('div');
+        grid.id = 'moein-shortcuts-grid';
+        currentBar.parentNode.insertBefore(grid, currentBar.nextSibling);
+
+        if (isStorageInitialized) {
+          renderShortcutsGrid();
+        } else {
+          loadBoxesFromStorage(() => {
+            renderShortcutsGrid();
+          });
+        }
+      }
+      return;
+    }
+
+    // 2. We are on Google Homepage (google.com):
     // 1. Hide footer
     document.querySelectorAll('div[role="contentinfo"], footer, .Ij8KCd, #footer').forEach(el => {
       el.style.setProperty('display', 'none', 'important');
@@ -2032,87 +2134,39 @@
     const searchForm = document.querySelector('form[action="/search"]') ||
                        document.querySelector('form[role="search"]');
 
-    // 6. Assemble the Single Unified Bar
-    if (!document.getElementById('moein-unified-bar')) {
-      if (navGrid && logoEl && searchForm && !isOfflineMode) {
-        const bar = document.createElement('div');
-        bar.id = 'moein-unified-bar';
+    // 6. Assemble the Single Unified Bar ONLY when all Google elements exist
+    if (navGrid && logoEl && searchForm && !document.getElementById('moein-unified-bar')) {
+      const bar = document.createElement('div');
+      bar.id = 'moein-unified-bar';
 
-        // Slot 1 (Right in RTL): Google Logo
-        const logoSlot = document.createElement('div');
-        logoSlot.id = 'moein-bar-logo';
-        logoSlot.appendChild(logoEl);
-        bar.appendChild(logoSlot);
+      // Slot 1 (Right in RTL): Google Logo
+      const logoSlot = document.createElement('div');
+      logoSlot.id = 'moein-bar-logo';
+      logoSlot.appendChild(logoEl);
+      bar.appendChild(logoSlot);
 
-        // Slot 2 (Center in RTL): Search Bar
-        const searchSlot = document.createElement('div');
-        searchSlot.id = 'moein-bar-search';
-        searchSlot.appendChild(searchForm);
-        bar.appendChild(searchSlot);
+      // Slot 2 (Center in RTL): Search Bar
+      const searchSlot = document.createElement('div');
+      searchSlot.id = 'moein-bar-search';
+      searchSlot.appendChild(searchForm);
+      bar.appendChild(searchSlot);
 
-        // Slot 3 (Left in RTL): 4 Buttons in 2x2 grid
-        const navSlot = document.createElement('div');
-        navSlot.id = 'moein-bar-nav';
-        navSlot.appendChild(navGrid);
-        bar.appendChild(navSlot);
+      // Slot 3 (Left in RTL): 4 Buttons in 2x2 grid
+      const navSlot = document.createElement('div');
+      navSlot.id = 'moein-bar-nav';
+      navSlot.appendChild(navGrid);
+      bar.appendChild(navSlot);
 
-        // Insert at the top of the body
-        document.body.insertBefore(bar, document.body.firstChild);
+      // Insert at the top of the body
+      document.body.insertBefore(bar, document.body.firstChild);
 
-        // Clean up original containers
-        if (gb) gb.style.display = 'none';
-        document.querySelectorAll('.k1zIA').forEach(el => el.style.display = 'none');
-      } else if (isOfflineMode || !searchForm) {
-        // Offline / Extension Page Unified Bar
-        const bar = document.createElement('div');
-        bar.id = 'moein-unified-bar';
-        bar.classList.add('moein-offline-mode');
+      // Clean up original containers
+      if (gb) gb.style.display = 'none';
+      document.querySelectorAll('.k1zIA').forEach(el => el.style.display = 'none');
 
-        // Slot 1: Google Logo
-        const logoSlot = document.createElement('div');
-        logoSlot.id = 'moein-bar-logo';
-        if (logoEl) {
-          logoSlot.appendChild(logoEl);
-        } else {
-          logoSlot.innerHTML = googleLogoSvg;
-        }
-        bar.appendChild(logoSlot);
-
-        // Slot 2: English Offline Message Banner
-        const searchSlot = document.createElement('div');
-        searchSlot.id = 'moein-bar-search';
-        const offlineBanner = document.createElement('div');
-        offlineBanner.className = 'moein-offline-banner';
-        offlineBanner.setAttribute('role', 'status');
-        offlineBanner.setAttribute('aria-label', 'No internet connection');
-        offlineBanner.innerHTML = `${wifiOffIconSvg}<span class="moein-offline-text">No internet connection</span>`;
-        offlineBanner.style.cursor = 'pointer';
-        offlineBanner.title = 'Click to check connection';
-        offlineBanner.addEventListener('click', async () => {
-          const isConnected = await checkConnectivity();
-          if (isConnected) redirectToGoogle();
-        });
-        searchSlot.appendChild(offlineBanner);
-        bar.appendChild(searchSlot);
-
-        // Slot 3: Balanced nav slot placeholder
-        const navSlot = document.createElement('div');
-        navSlot.id = 'moein-bar-nav';
-        if (navGrid) {
-          navSlot.appendChild(navGrid);
-        } else {
-          navSlot.innerHTML = `<div class="moein-nav-grid-placeholder"></div>`;
-        }
-        bar.appendChild(navSlot);
-
-        // Insert at the top of the body
-        document.body.insertBefore(bar, document.body.firstChild);
-
-        if (gb) gb.style.display = 'none';
-        document.querySelectorAll('.k1zIA').forEach(el => el.style.display = 'none');
-
-        // Start 2-second reconnect interval
-        startOfflineReconnectionChecker(redirectToGoogle);
+      // If connection was lost while opening Google, show offline banner inside search slot
+      if (!navigator.onLine) {
+        showGoogleOfflineBanner();
       }
     }
 
@@ -2166,52 +2220,22 @@
 
   // Real-time online/offline event listeners
   window.addEventListener('offline', () => {
-    const searchSlot = document.getElementById('moein-bar-search');
-    if (searchSlot && !searchSlot.querySelector('.moein-offline-banner')) {
-      const form = searchSlot.querySelector('form');
-      if (form) form.style.display = 'none';
-      const offlineBanner = document.createElement('div');
-      offlineBanner.className = 'moein-offline-banner';
-      offlineBanner.setAttribute('role', 'status');
-      offlineBanner.setAttribute('aria-label', 'No internet connection');
-      offlineBanner.innerHTML = `${wifiOffIconSvg}<span class="moein-offline-text">No internet connection</span>`;
-      offlineBanner.style.cursor = 'pointer';
-      offlineBanner.title = 'Click to check connection';
-      offlineBanner.addEventListener('click', async () => {
-        const isConnected = await checkConnectivity();
-        if (isConnected) {
-          offlineBanner.remove();
-          if (form) form.style.display = '';
-        }
-      });
-      searchSlot.appendChild(offlineBanner);
-
-      startOfflineReconnectionChecker(() => {
-        offlineBanner.remove();
-        if (form) form.style.display = '';
-      });
+    if (location.protocol !== 'chrome-extension:') {
+      showGoogleOfflineBanner();
     }
   });
 
   window.addEventListener('online', async () => {
-    if (offlineAttempts < MAX_OFFLINE_ATTEMPTS) {
-      const isConnected = await checkConnectivity();
-      if (isConnected) {
-        if (offlineCheckInterval) {
-          clearInterval(offlineCheckInterval);
-          offlineCheckInterval = null;
-        }
-        if (location.protocol === 'chrome-extension:') {
-          redirectToGoogle();
-        } else {
-          const searchSlot = document.getElementById('moein-bar-search');
-          if (searchSlot) {
-            const banner = searchSlot.querySelector('.moein-offline-banner');
-            if (banner) banner.remove();
-            const form = searchSlot.querySelector('form');
-            if (form) form.style.display = '';
-          }
-        }
+    const isConnected = await checkConnectivity();
+    if (isConnected) {
+      if (offlineCheckInterval) {
+        clearInterval(offlineCheckInterval);
+        offlineCheckInterval = null;
+      }
+      if (location.protocol === 'chrome-extension:') {
+        redirectToGoogle();
+      } else {
+        hideGoogleOfflineBanner();
       }
     }
   });

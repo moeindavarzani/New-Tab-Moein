@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Manifest-V3-4285F4?style=flat-square&logo=google-chrome" alt="Manifest V3">
-  <img src="https://img.shields.io/badge/Version-3.12.0-34A853?style=flat-square" alt="Version 3.12.0">
+  <img src="https://img.shields.io/badge/Version-3.12.1-34A853?style=flat-square" alt="Version 3.12.1">
   <img src="https://img.shields.io/badge/License-MIT-FBBC05?style=flat-square" alt="License MIT">
   <img src="https://img.shields.io/badge/RTL-پشتیبانی_کامل-EA4335?style=flat-square" alt="RTL Supported">
 </p>

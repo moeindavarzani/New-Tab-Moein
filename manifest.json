@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Moein",
-  "version": "3.12.0",
+  "version": "3.12.1",
   "description": "سفارشی سازی زبانه جدید و گوگل - Tab Moein",
   "icons": {
     "128": "icon128.png"
