@@ -21,6 +21,10 @@
   <img src="https://img.shields.io/badge/Chrome-Extension-EA4335?style=flat-square&logo=google-chrome" alt="Chrome Extension">
 </p>
 
+<p align="center">
+  <img src="screenshots/preview.png" alt="New Tab Moein Preview" width="100%">
+</p>
+
 ---
 
 ## 🌐 Languages / زبان‌ها
@@ -78,6 +82,7 @@ New-Tab-Moein/
 ├── google_custom.js    # Core UI logic: grid rendering, modals, color picker, drag & drop, reconnect manager
 ├── google_custom.css   # Frosted glass styling, responsive layout, animations, custom scrollbars
 ├── icon128.png         # Official extension icon
+├── screenshots/        # UI screenshots & preview assets
 ├── test_logic.js       # Test suite runner & unit tests
 └── test_runner.html    # Headless Chrome 25-stage automated DOM test suite
 ```

@@ -21,6 +21,10 @@
   <img src="https://img.shields.io/badge/RTL-پشتیبانی_کامل-EA4335?style=flat-square" alt="RTL Supported">
 </p>
 
+<p align="center">
+  <img src="screenshots/preview.png" alt="پیش‌نمایش افزونه تب معین" width="100%">
+</p>
+
 ---
 
 ## 🌐 زبان‌ها / Languages
@@ -78,6 +82,7 @@ New-Tab-Moein/
 ├── google_custom.js    # هسته اصلی: منطق پوشه‌ها، مودال‌ها، پالت رنگ، درگ اند دراپ و بررسی اتصال
 ├── google_custom.css   # استایل‌های شیشه‌ای، طراحی واکنش‌گرا، افکت‌ها و انیمیشن‌ها
 ├── icon128.png         # آیکون رسمی افزونه
+├── screenshots/        # اسکرین‌شات‌ها و پیش‌نمایش رابط کاربری
 ├── test_logic.js       # مجموعه آزمون‌های واحد منطقی
 └── test_runner.html    # مجموعه آزمون‌های ۲۵ گانه خودکار DOM در مرورگر هدلس کروم
 ```
