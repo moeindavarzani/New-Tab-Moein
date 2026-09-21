@@ -217,6 +217,95 @@
     }
   };
 
+  const extractRootDomain = (domain) => {
+    if (!domain) return '';
+    const clean = domain.trim().toLowerCase().replace(/^www\./, '');
+    const parts = clean.split('.');
+    if (parts.length <= 2) return clean;
+    const commonTwoPartTlds = ['ac.ir', 'co.ir', 'gov.ir', 'org.ir', 'net.ir', 'id.ir', 'sch.ir', 'co.uk', 'gov.uk', 'com.au'];
+    const lastTwo = parts.slice(-2).join('.');
+    if (commonTwoPartTlds.includes(lastTwo) && parts.length > 2) {
+      return parts.slice(-3).join('.');
+    }
+    return parts.slice(-2).join('.');
+  };
+
+  const getChromeFaviconUrl = (pageUrl, size = 64) => {
+    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.getURL) {
+      try {
+        const url = new URL(chrome.runtime.getURL('/_favicon/'));
+        url.searchParams.set('pageUrl', pageUrl);
+        url.searchParams.set('size', size.toString());
+        return url.toString();
+      } catch (e) {
+        return '';
+      }
+    }
+    return '';
+  };
+
+  const buildFaviconSources = (pageUrl, domain) => {
+    const d = domain || extractDomain(pageUrl);
+    const rootD = extractRootDomain(d);
+    const sources = [];
+
+    // 1. Chrome's native local browser favicon cache (official MV3 API, works for internal/banking/national .ir sites)
+    if (pageUrl) {
+      const chromeUrl = getChromeFaviconUrl(pageUrl, 64);
+      if (chromeUrl) sources.push(chromeUrl);
+    }
+
+    // 2. Google S2 full domain favicon service
+    if (d) sources.push(`https://www.google.com/s2/favicons?domain=${d}&sz=64`);
+
+    // 3. Google S2 root domain fallback (e.g. sayad.bmi.ir -> bmi.ir, web.shad.ir -> shad.ir)
+    if (rootD && rootD !== d) {
+      sources.push(`https://www.google.com/s2/favicons?domain=${rootD}&sz=64`);
+    }
+
+    // 4. DuckDuckGo Favicon Service
+    if (d) sources.push(`https://icons.duckduckgo.com/ip3/${d}.ico`);
+
+    // 5. Direct site root favicon (/favicon.ico)
+    if (pageUrl) {
+      try {
+        const formatted = /^https?:\/\//i.test(pageUrl) ? pageUrl : `https://${pageUrl}`;
+        const parsed = new URL(formatted);
+        sources.push(`${parsed.origin}/favicon.ico`);
+      } catch (e) {}
+    }
+
+    return sources;
+  };
+
+  const setupFaviconImage = (container, pageUrl, domain, name) => {
+    const sources = buildFaviconSources(pageUrl, domain);
+    if (!sources.length) {
+      container.innerHTML = globeIconSvg;
+      return;
+    }
+
+    let srcIndex = 0;
+    const img = document.createElement('img');
+    img.alt = name || '';
+    img.loading = 'lazy';
+    img.setAttribute('draggable', 'false');
+
+    const tryNext = () => {
+      srcIndex++;
+      if (srcIndex < sources.length) {
+        img.src = sources[srcIndex];
+      } else {
+        img.remove();
+        container.innerHTML = globeIconSvg;
+      }
+    };
+
+    img.onerror = tryNext;
+    img.src = sources[0];
+    container.appendChild(img);
+  };
+
   const sanitizeUrl = (rawUrl) => {
     let url = (rawUrl || '').trim();
     if (!url) return '';
@@ -891,15 +980,7 @@
 
           const iconEl = document.createElement('div');
           iconEl.className = 'moein-bm-check-icon';
-          const img = document.createElement('img');
-          img.src = `https://www.google.com/s2/favicons?domain=${bm.domain}&sz=64`;
-          img.alt = bm.name;
-          img.loading = 'lazy';
-          img.onerror = () => {
-            img.remove();
-            iconEl.innerHTML = globeIconSvg;
-          };
-          iconEl.appendChild(img);
+          setupFaviconImage(iconEl, bm.url, bm.domain, bm.name);
 
           const textEl = document.createElement('div');
           textEl.className = 'moein-bm-check-text';
@@ -1722,16 +1803,7 @@
           iconWrapper.setAttribute('draggable', 'false');
 
           const domain = site.domain || extractDomain(site.url);
-          const img = document.createElement('img');
-          img.src = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-          img.alt = site.name;
-          img.loading = 'lazy';
-          img.setAttribute('draggable', 'false');
-          img.onerror = () => {
-            img.remove();
-            iconWrapper.innerHTML = globeIconSvg;
-          };
-          iconWrapper.appendChild(img);
+          setupFaviconImage(iconWrapper, site.url, domain, site.name);
 
           const nameSpan = document.createElement('span');
           nameSpan.className = 'moein-site-name';
@@ -2247,6 +2319,9 @@
       reorderSitesInBox,
       transferSiteBetweenBoxes,
       extractDomain,
+      extractRootDomain,
+      buildFaviconSources,
+      getChromeFaviconUrl,
       sanitizeUrl,
       flattenChromeBookmarkFolders,
       getCurrentBoxes: () => currentBoxes,

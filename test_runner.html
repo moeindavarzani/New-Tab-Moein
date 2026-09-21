@@ -63,6 +63,9 @@
     window.chrome = {
       runtime: {
         lastError: null,
+        getURL: function(path) {
+          return 'chrome-extension://mock-id' + (path.startsWith('/') ? path : '/' + path);
+        },
         sendMessage: function(message, callback) {
           if (message.action === 'getChromeBookmarksTree') {
             setTimeout(() => callback({ success: true, tree: mockChromeBookmarksTree }), 10);
@@ -584,7 +587,24 @@
           if (f) f.style.display = '';
         }
 
-        log('🎉 ALL TESTS PASSED SUCCESSFULLY! TEST COMPLETED WITH ZERO ERRORS.');
+        // Test 26: Multi-Tier Favicon Resolver & Iranian Domain Support
+        assert(typeof logic.extractRootDomain === 'function', 'extractRootDomain function is exported');
+        assert(logic.extractRootDomain('web.shad.ir') === 'shad.ir', 'extractRootDomain resolves web.shad.ir to shad.ir');
+        assert(logic.extractRootDomain('sayad.bmi.ir') === 'bmi.ir', 'extractRootDomain resolves sayad.bmi.ir to bmi.ir');
+        assert(logic.extractRootDomain('automation.hsu.ac.ir') === 'hsu.ac.ir', 'extractRootDomain resolves automation.hsu.ac.ir to hsu.ac.ir');
+        assert(logic.extractRootDomain('my.tci.ir') === 'tci.ir', 'extractRootDomain resolves my.tci.ir to tci.ir');
+        assert(logic.extractRootDomain('sub.domain.co.uk') === 'domain.co.uk', 'extractRootDomain resolves sub.domain.co.uk to domain.co.uk');
+        assert(logic.extractRootDomain('google.com') === 'google.com', 'extractRootDomain preserves google.com');
+
+        const sources = logic.buildFaviconSources('https://web.shad.ir/chat', 'web.shad.ir');
+        assert(sources.length >= 4, `Multi-tier favicon sources array contains multiple fallbacks (got ${sources.length})`);
+        assert(sources[0].includes('chrome-extension://') && sources[0].includes('_favicon'), 'Tier 1 uses Chrome native _favicon API');
+        assert(sources[1].includes('google.com/s2/favicons?domain=web.shad.ir'), 'Tier 2 uses Google S2 full domain');
+        assert(sources[2].includes('google.com/s2/favicons?domain=shad.ir'), 'Tier 3 uses Google S2 root domain fallback (shad.ir)');
+        assert(sources.some(s => s.includes('duckduckgo.com')), 'Tier 4 includes DuckDuckGo fallback');
+        assert(sources.some(s => s.endsWith('/favicon.ico')), 'Tier 5 includes direct origin /favicon.ico fallback');
+
+        log('🎉 ALL 26 TESTS PASSED SUCCESSFULLY! TEST COMPLETED WITH ZERO ERRORS.');
         document.title = 'TESTS_PASSED';
       } catch (err) {
         log('❌ TEST FAILED: ' + err.message + '\n' + err.stack);

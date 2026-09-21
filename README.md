@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Manifest-V3-4285F4?style=flat-square&logo=google-chrome" alt="Manifest V3">
-  <img src="https://img.shields.io/badge/Version-3.12.1-34A853?style=flat-square" alt="Version 3.12.1">
+  <img src="https://img.shields.io/badge/Version-3.13.0-34A853?style=flat-square" alt="Version 3.13.0">
   <img src="https://img.shields.io/badge/License-MIT-FBBC05?style=flat-square" alt="License MIT">
   <img src="https://img.shields.io/badge/Chrome-Extension-EA4335?style=flat-square&logo=google-chrome" alt="Chrome Extension">
 </p>
@@ -39,6 +39,7 @@
   - Reorder folder cards effortlessly using the dedicated 6-dot grip handle (`⋮⋮`).
   - Reorder bookmark items inside any folder or move them across folders with intuitive visual drop indicators.
 - 🎨 **Smart Color Wheel & Presets**: Customize the background tint of individual folder cards using an interactive HSL color wheel or soft pastel presets.
+- 🌐 **Multi-Tier Smart Favicon Resolver**: Employs Chrome's official Manifest V3 `_favicon` API to pull directly from local browser cache (guaranteeing high-res icons even for domestic/banking and intranet `.ir` domains), backed by a 5-tier intelligent fallback chain (Google S2 full domain, subdomain-to-root resolution, DuckDuckGo, direct `/favicon.ico`, and SVG globe).
 - 🔖 **Direct Chrome Bookmarks Import**: Seamlessly browse, select, and import your existing Google Chrome bookmarks and entire bookmark folders with one-click checkboxes.
 - 📶 **Smart Offline Mode & Auto-Reconnection**:
   - Opens instantly even without an internet connection, loading all local bookmark folders and custom settings.

@@ -16,7 +16,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/Manifest-V3-4285F4?style=flat-square&logo=google-chrome" alt="Manifest V3">
-  <img src="https://img.shields.io/badge/Version-3.12.1-34A853?style=flat-square" alt="Version 3.12.1">
+  <img src="https://img.shields.io/badge/Version-3.13.0-34A853?style=flat-square" alt="Version 3.13.0">
   <img src="https://img.shields.io/badge/License-MIT-FBBC05?style=flat-square" alt="License MIT">
   <img src="https://img.shields.io/badge/RTL-پشتیبانی_کامل-EA4335?style=flat-square" alt="RTL Supported">
 </p>
@@ -39,6 +39,7 @@
   - جابجایی کارت‌های پوشه با دستگیره گریپ ۶ نقطه‌ای (`⋮⋮`).
   - جابجایی ترتیبی نشانک‌ها درون یک پوشه یا انتقال آسان سایت‌ها میان پوشه‌های مختلف.
 - 🎨 **چرخه رنگی و پالت هوشمند (Color Wheel)**: انتخاب رنگ پس‌زمینه اختصاصی برای هر پوشه با استفاده از چرخ رنگ HSL یا رنگ‌های ملایم پاستلی آماده.
+- 🌐 **دریافت چندلایه و هوشمند آیکون‌ها (Smart Favicon Resolver)**: بهره‌گیری از API بومی نسخه ۳ کروم (`_favicon`) جهت استخراج مستقیم آیکون‌ها از کش محلی مرورگر (تضمین نمایش شفاف آیکون سایت‌های ایرانی، دانشگاهی، اینترانت ملی و سامانه‌های بانکی نظیر شاد، صیاد، مخابرات و...) به همراه زنجیره ۵ مرحله‌ای جایگزین (گوگل S2، دامنه‌های ریشه، داک‌داک‌گو، فایل مستقیم favicon.ico و کره زمین برداری).
 - 🔖 **ورود مستقیم نشانک‌های مرورگر کروم**: امکان انتخاب و ایمپورت پوشه‌ها یا نشانک‌های مرورگر کروم با تیک زدن در یک پنجره منظم.
 - 📶 **حالت آفلاین هوشمند با بررسی خودکار اتصال**:
   - نمایش کامل پوشه‌ها و دسترسی به نشانک‌ها حتی در زمان قطعی کامل اینترنت.

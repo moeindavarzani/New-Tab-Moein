@@ -608,13 +608,79 @@ assert.strictEqual(shouldInterceptError('https://www.google.com/', 1), false, 'D
 assert.strictEqual(shouldInterceptError('https://example.com/', 0), false, 'Does not intercept non-Google navigation');
 console.log('✓ Offline Reconnection & 25-Attempt Cap Logic passed');
 
-console.log('--- 15. Testing Headless Chrome DOM Test Suite (test_runner.html) ---');
+console.log('--- 15. Testing Multi-Tier Favicon Resolver & Subdomain Fallback Logic ---');
+const extractRootDomain = (domain) => {
+  if (!domain) return '';
+  const clean = domain.trim().toLowerCase().replace(/^www\./, '');
+  const parts = clean.split('.');
+  if (parts.length <= 2) return clean;
+  const commonTwoPartTlds = ['ac.ir', 'co.ir', 'gov.ir', 'org.ir', 'net.ir', 'id.ir', 'sch.ir', 'co.uk', 'gov.uk', 'com.au'];
+  const lastTwo = parts.slice(-2).join('.');
+  if (commonTwoPartTlds.includes(lastTwo) && parts.length > 2) {
+    return parts.slice(-3).join('.');
+  }
+  return parts.slice(-2).join('.');
+};
+
+const buildFaviconSources = (pageUrl, domain) => {
+  const d = domain || extractDomain(pageUrl);
+  const rootD = extractRootDomain(d);
+  const sources = [];
+
+  if (pageUrl) {
+    sources.push(`chrome-extension://mock-id/_favicon/?pageUrl=${encodeURIComponent(pageUrl)}&size=64`);
+  }
+
+  if (d) sources.push(`https://www.google.com/s2/favicons?domain=${d}&sz=64`);
+
+  if (rootD && rootD !== d) {
+    sources.push(`https://www.google.com/s2/favicons?domain=${rootD}&sz=64`);
+  }
+
+  if (d) sources.push(`https://icons.duckduckgo.com/ip3/${d}.ico`);
+
+  if (pageUrl) {
+    try {
+      const formatted = /^https?:\/\//i.test(pageUrl) ? pageUrl : `https://${pageUrl}`;
+      const parsed = new URL(formatted);
+      sources.push(`${parsed.origin}/favicon.ico`);
+    } catch (e) {}
+  }
+
+  return sources;
+};
+
+// 15a. extractRootDomain tests for Iranian and international domains
+assert.strictEqual(extractRootDomain('web.shad.ir'), 'shad.ir', 'Resolves web.shad.ir to shad.ir');
+assert.strictEqual(extractRootDomain('sayad.bmi.ir'), 'bmi.ir', 'Resolves sayad.bmi.ir to bmi.ir');
+assert.strictEqual(extractRootDomain('automation.hsu.ac.ir'), 'hsu.ac.ir', 'Resolves 3-part Iranian academic domain to hsu.ac.ir');
+assert.strictEqual(extractRootDomain('my.tci.ir'), 'tci.ir', 'Resolves my.tci.ir to tci.ir');
+assert.strictEqual(extractRootDomain('sub.domain.co.uk'), 'domain.co.uk', 'Resolves UK 2-part TLD');
+assert.strictEqual(extractRootDomain('google.com'), 'google.com', 'Preserves 2-part standard domain google.com');
+assert.strictEqual(extractRootDomain('www.google.com'), 'google.com', 'Strips leading www.');
+assert.strictEqual(extractRootDomain(''), '', 'Handles empty domain gracefully');
+
+// 15b. buildFaviconSources tier validation
+const shadSources = buildFaviconSources('https://web.shad.ir/chat', 'web.shad.ir');
+assert.strictEqual(shadSources.length, 5, 'Generates full 5-tier fallback sources for subdomain');
+assert.strictEqual(shadSources[0].startsWith('chrome-extension://'), true, 'Tier 1 is Chrome native local cache');
+assert.strictEqual(shadSources[1], 'https://www.google.com/s2/favicons?domain=web.shad.ir&sz=64', 'Tier 2 is Google S2 for exact subdomain');
+assert.strictEqual(shadSources[2], 'https://www.google.com/s2/favicons?domain=shad.ir&sz=64', 'Tier 3 is Google S2 for root domain shad.ir');
+assert.strictEqual(shadSources[3], 'https://icons.duckduckgo.com/ip3/web.shad.ir.ico', 'Tier 4 is DuckDuckGo service');
+assert.strictEqual(shadSources[4], 'https://web.shad.ir/favicon.ico', 'Tier 5 is direct origin favicon.ico');
+
+// 15c. buildFaviconSources root domain (no duplicate root tier)
+const githubSources = buildFaviconSources('https://github.com', 'github.com');
+assert.strictEqual(githubSources.length, 4, 'Only 4 tiers when domain is already root domain (no duplicate)');
+console.log('✓ Multi-Tier Favicon Resolver & Subdomain Fallback Logic passed');
+
+console.log('--- 16. Testing Headless Chrome DOM Test Suite (test_runner.html) ---');
 const chromePath = 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe';
 if (fs.existsSync(chromePath)) {
   const runnerPath = path.resolve(__dirname, 'test_runner.html').replace(/\\/g, '/');
   const domCmd = `"${chromePath}" --headless=new --disable-gpu --virtual-time-budget=6000 --dump-dom "file:///${runnerPath}"`;
   const domOutput = execSync(domCmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
-  const hasPassedTitle = domOutput.includes('<title>TESTS_PASSED</title>') || domOutput.includes('ALL TESTS PASSED SUCCESSFULLY');
+  const hasPassedTitle = domOutput.includes('<title>TESTS_PASSED</title>') || domOutput.includes('ALL 26 TESTS PASSED SUCCESSFULLY');
   const hasFailedTitle = domOutput.includes('<title>TESTS_FAILED</title>');
   if (!hasPassedTitle || hasFailedTitle) {
     const match = domOutput.match(/<div id="test-output"[^>]*>([\s\S]*?)<\/div>/);
@@ -622,14 +688,14 @@ if (fs.existsSync(chromePath)) {
   }
   assert.strictEqual(hasPassedTitle, true, 'test_runner.html must pass with <title>TESTS_PASSED</title> in headless Chrome');
   assert.strictEqual(hasFailedTitle, false, 'test_runner.html must not fail with <title>TESTS_FAILED</title>');
-  console.log('✓ Headless Chrome DOM Test Suite (25/25 DOM Tests in test_runner.html) passed');
+  console.log('✓ Headless Chrome DOM Test Suite (26/26 DOM Tests in test_runner.html) passed');
 
 } else {
   console.log('⚠ Chrome executable not found at default path, skipped headless DOM run');
 }
 
 console.log('\n=============================================');
-console.log('🎉 ALL 15 TESTS (UNIT + DOM) PASSED WITH ZERO ERRORS!');
+console.log('🎉 ALL 16 TESTS (UNIT + DOM) PASSED WITH ZERO ERRORS!');
 console.log('=============================================\n');
 
 

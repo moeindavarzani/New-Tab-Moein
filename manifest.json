@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Tab Moein",
-  "version": "3.12.1",
+  "version": "3.13.0",
   "description": "سفارشی سازی زبانه جدید و گوگل - Tab Moein",
   "icons": {
     "128": "icon128.png"
@@ -12,7 +12,8 @@
     "activeTab",
     "bookmarks",
     "storage",
-    "webNavigation"
+    "webNavigation",
+    "favicon"
   ],
   "host_permissions": [
     "<all_urls>"
@@ -32,6 +33,16 @@
         "google_custom.js"
       ],
       "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "_favicon/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
     }
   ],
   "chrome_url_overrides": {
