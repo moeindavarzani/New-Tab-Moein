@@ -1,87 +1,100 @@
-# Tab Moein (تب معین) 🚀
+# New Tab Moein 🚀
 
 <p align="center">
-  <img src="icon128.png" alt="Tab Moein Logo" width="96" height="96">
+  <img src="icon128.png" alt="New Tab Moein Logo" width="96" height="96">
 </p>
 
 <p align="center">
-  <b>افزونه سفارشی‌سازی مدرن صفحه گوگل و زبانه جدید (New Tab) برای گوگل کروم</b><br>
-  <i>Modern Frosted-Glass Google Homepage & New Tab Customizer for Google Chrome</i>
+  <b>A sleek, frosted-glass Google Homepage & New Tab customization extension for Google Chrome.</b><br>
+  <i>Personalize your new tab with organized bookmark folders, drag-and-drop management, customizable color palettes, and smart offline support.</i>
+</p>
+
+<p align="center">
+  <a href="README.fa.md"><img src="https://img.shields.io/badge/زبان-فارسی-green?style=for-the-badge&logo=google-translate" alt="Persian Version"></a>
+  <a href="README.md"><img src="https://img.shields.io/badge/Language-English-blue?style=for-the-badge" alt="English Version"></a>
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Manifest-V3-4285F4?style=flat-square&logo=google-chrome" alt="Manifest V3">
   <img src="https://img.shields.io/badge/Version-3.12.0-34A853?style=flat-square" alt="Version 3.12.0">
   <img src="https://img.shields.io/badge/License-MIT-FBBC05?style=flat-square" alt="License MIT">
-  <img src="https://img.shields.io/badge/RTL-Supported-EA4335?style=flat-square" alt="RTL Supported">
+  <img src="https://img.shields.io/badge/Chrome-Extension-EA4335?style=flat-square&logo=google-chrome" alt="Chrome Extension">
 </p>
 
 ---
 
-## 🌟 ویژگی‌های کلیدی (Key Features)
+## 🌐 Languages / زبان‌ها
 
-- 🎨 **طراحی مدرن شیشه‌ای (Frosted Glass UI)**: طراحی شفاف و بلورین مطابق با آخرین استانداردهای طراحی وب با افکت مات‌کننده شیشه‌ای (`backdrop-filter`).
-- 🧭 **سربرگ یکپارچه (Unified Header Bar)**: ادغام لوگوی گوگل، فیلد جستجو و دسترسی ۲×۲ به حساب کاربری، جیمیل، تصاویر و اپ‌های گوگل در یک خط افقی متقارن.
-- 📁 **مدیریت پوشه‌های نشانک‌ها (Bookmark Folders Grid)**: نمایش تا ۱۲ پوشه دسته‌بندی‌شده از سایت‌های مورد علاقه در یک شبکه منظم ۴ ستونه.
-- 🔀 **جابجایی با کشیدن و رها کردن (Drag and Drop)**:
-  - جابجایی ترتیبی پوشه‌ها با استفاده از دستگیره گریپ ۶ نقطه‌ای (`⋮⋮`).
-  - جابجایی آزاد نشانک‌ها درون یک پوشه یا انتقال بین پوشه‌های مختلف.
-- 🎨 **پالت رنگ هوشمند (Color Wheel & Presets)**: انتخاب رنگ پس‌زمینه اختصاصی برای هر پوشه با چرخه رنگی HSL و رنگ‌های از پیش تعیین‌شده ملایم.
-- 🔖 **اتصال به نشانک‌های گوگل کروم (Chrome Bookmarks Integration)**: امکان انتخاب و وارد کردن پوشه‌ها یا نشانک‌های مرورگر کروم به صورت مستقیم با تیک زدن.
-- 📶 **پشتیبانی کامل از حالت آفلاین (Smart Offline Mode)**:
-  - بارگذاری محلی تمام پوشه‌ها و نشانک‌ها حتی در زمان قطعی کامل اینترنت.
-  - نمایش پیام انگلیسی وضعیت شبکه (`No internet connection`) در کادر میانی سربرگ.
-  - سیستم بررسی خودکار اتصال هر ۲ ثانیه (تا سقف ۲۵ تلاش) و بازگشت خودکار به گوگل به محض وصل شدن اینترنت.
-- 📐 **طراحی واکنش‌گرا و سازگار با دو ردیف**: چیدمان خودکار ۲ یا ۳ ستونه نشانک‌ها بسته به عرض صفحه و حذف کامل نوار اسکرول در کارت‌هایی که در ۲ ردیف جا می‌گیرند.
+- [🇬🇧 **English (Current)**](README.md)
+- [🇮🇷 **فارسی (Persian)**](README.fa.md)
 
 ---
 
-## 💻 نحوه نصب و استفاده (Installation Guide)
+## 🌟 Key Features
 
-1. این مخزن را دانلود کنید یا با دستور زیر کلون نمایید:
+- 🎨 **Modern Frosted-Glass Aesthetics**: Elegant, transparent glassmorphism UI with smooth background blur (`backdrop-filter`) matching contemporary design systems.
+- 🧭 **Unified Top Navigation Bar**: Combines the official Google multi-color logo on the right, the Google search bar in the center, and a 2x2 grid (Google Apps waffle menu, Account avatar, Gmail, Images) on the left into one balanced horizontal line.
+- 📁 **Organized Bookmark Folders Grid**: Displays up to 12 customizable category folders (e.g. AI, Google Services, Social Media, Coding, University & Research) in a responsive 4-column grid.
+- 🔀 **Full Drag-and-Drop Organization**:
+  - Reorder folder cards effortlessly using the dedicated 6-dot grip handle (`⋮⋮`).
+  - Reorder bookmark items inside any folder or move them across folders with intuitive visual drop indicators.
+- 🎨 **Smart Color Wheel & Presets**: Customize the background tint of individual folder cards using an interactive HSL color wheel or soft pastel presets.
+- 🔖 **Direct Chrome Bookmarks Import**: Seamlessly browse, select, and import your existing Google Chrome bookmarks and entire bookmark folders with one-click checkboxes.
+- 📶 **Smart Offline Mode & Auto-Reconnection**:
+  - Opens instantly even without an internet connection, loading all local bookmark folders and custom settings.
+  - Displays a clean, native English status banner in the top search box: `No internet connection`.
+  - Automatically probes connection every 2 seconds (with a strict 25-attempt limit) and redirects straight to Google once connectivity is restored.
+  - Keeps the interface uncluttered without displaying retry counters or attempt numbers.
+- 📐 **Adaptive & Scrollbar-Free Layout**: Automatically switches between 2-column and 3-column bookmark rows based on card width, and hides vertical scrollbars on cards whose bookmarks fit in two rows.
+
+---
+
+## 💻 Installation & Setup
+
+1. Clone or download this repository:
    ```bash
-   git clone https://github.com/moeindavarzani/tab-moein.git
+   git clone https://github.com/moeindavarzani/New-Tab-Moein.git
    ```
-2. مرورگر **Google Chrome** را باز کرده و به آدرس زیر بروید:
+2. Open **Google Chrome** and navigate to:
    ```text
    chrome://extensions
    ```
-3. گزینه **Developer mode (حالت برنامه‌نویس)** را در گوشه بالا سمت راست فعال کنید.
-4. روی دکمه **Load unpacked (بارگذاری بسته بازنشده)** کلیک کنید.
-5. پوشه پروژه (`Tab Moein`) را انتخاب کنید.
-6. یک زبانه جدید (`Ctrl + T`) باز کنید و از صفحه جدید و شخصی‌سازی‌شده خود لذت ببرید!
+3. Enable **Developer mode** using the toggle switch in the top-right corner.
+4. Click the **Load unpacked** button in the top-left.
+5. Select the project folder (`New-Tab-Moein` or `Tab Moein`).
+6. Open a new tab (`Ctrl + T`) to experience your customized Google homepage!
 
 ---
 
-## 🏗️ ساختار پروژه (Project Structure)
+## 🏗️ Project Architecture
 
 ```text
-Tab Moein/
-├── manifest.json       # مانیفست افزونه (Manifest V3) با دسترسی‌های tabs, bookmarks, storage, webNavigation
-├── newtab.html         # صفحه زبانه جدید و میزبان رابط کاربری آفلاین
-├── redirect.js         # کنترل‌کننده هوشمند هدایت آنلاین / بارگذاری آفلاین
-├── background.js       # سرویس ورکر پس‌زمینه، دسترسی به نشانک‌های کروم و مدیریت خطاهای شبکه
-├── google_custom.js    # هسته منطقی رابط کاربری، رندرینگ پوشه‌ها، مودال‌ها، پالت رنگ و درگ اند دراپ
-├── google_custom.css   # استایل‌های شیشه‌ای، چیدمان واکنش‌گرا و انیمیشن‌های نرم
-├── icon128.png         # آیکون رسمی افزونه
-├── test_logic.js       # تست‌های واحد منطقی و اجرای تست‌های مرورگر هدلس
-└── test_runner.html    # مجموعه آزمون‌های ۲۵ گانه خودکار DOM در مرورگر هدلس کروم
+New-Tab-Moein/
+├── manifest.json       # Chrome Manifest V3 configuration (tabs, bookmarks, storage, webNavigation)
+├── newtab.html         # New tab override page & offline UI container
+├── redirect.js         # Intelligent online redirection / offline fallback controller
+├── background.js       # Background service worker (Chrome bookmarks API & network error handler)
+├── google_custom.js    # Core UI logic: grid rendering, modals, color picker, drag & drop, reconnect manager
+├── google_custom.css   # Frosted glass styling, responsive layout, animations, custom scrollbars
+├── icon128.png         # Official extension icon
+├── test_logic.js       # Test suite runner & unit tests
+└── test_runner.html    # Headless Chrome 25-stage automated DOM test suite
 ```
 
 ---
 
-## 🧪 تست‌های خودکار (Automated Testing)
+## 🧪 Automated Testing
 
-برای اجرای تمامی آزمون‌های منطقی و تست‌های DOM در مرورگر هدلس:
+Tab Moein includes comprehensive unit and headless browser DOM tests:
 
 ```bash
 node test_logic.js
 ```
 
-تمامی ۱۵ بخش آزمون شامل ۲۵ تست مستقل در Headless Chrome با موفقیت ۱۰۰٪ پاس می‌شوند.
+All 15 test suites—including 25 automated DOM tests executed inside Google Chrome Headless—pass with a 100% success rate.
 
 ---
 
-## 📄 لایسنس (License)
+## 📄 License
 
-این پروژه تحت مجوز [MIT](LICENSE) منتشر شده است.
+This project is licensed under the [MIT License](LICENSE).
