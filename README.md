@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src="screenshots/preview.png" alt="New Tab Moein Preview" width="100%">
+  <img src="screenshots/preview.png?raw=true" alt="New Tab Moein Preview" width="100%">
 </p>
 
 ---

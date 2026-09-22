@@ -22,7 +22,7 @@
 </p>
 
 <p align="center">
-  <img src="screenshots/preview.png" alt="پیش‌نمایش افزونه تب معین" width="100%">
+  <img src="screenshots/preview.png?raw=true" alt="پیش‌نمایش افزونه تب معین" width="100%">
 </p>
 
 ---
