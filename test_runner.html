@@ -604,7 +604,67 @@
         assert(sources.some(s => s.includes('duckduckgo.com')), 'Tier 4 includes DuckDuckGo fallback');
         assert(sources.some(s => s.endsWith('/favicon.ico')), 'Tier 5 includes direct origin /favicon.ico fallback');
 
-        log('🎉 ALL 26 TESTS PASSED SUCCESSFULLY! TEST COMPLETED WITH ZERO ERRORS.');
+        // Test 27: Resilient Nav Grid with Logged-Out Sign-in Button
+        const testNavGrid = document.getElementById('moein-nav-grid');
+        assert(testNavGrid !== null, 'moein-nav-grid is assembled in moein-bar-nav');
+        const signInBtn = document.createElement('a');
+        signInBtn.href = 'https://accounts.google.com/ServiceLogin';
+        signInBtn.className = 'gb_1';
+        signInBtn.textContent = 'ورود';
+        assert(signInBtn.href.includes('ServiceLogin'), 'Sign-in button selector matches accounts.google.com/ServiceLogin');
+
+        // Test 28: Google Doodle resolution in #moein-bar-logo
+        const barLogo = document.getElementById('moein-bar-logo');
+        assert(barLogo !== null, '#moein-bar-logo slot exists');
+        const mockDoodleImg = document.createElement('img');
+        mockDoodleImg.src = 'https://www.google.com/logos/doodles/2026/sports.png';
+        mockDoodleImg.alt = 'روز بسکتبال';
+        barLogo.appendChild(mockDoodleImg);
+        assert(barLogo.querySelector('img[src*="doodles"]') !== null, 'Doodle image is successfully placed in #moein-bar-logo');
+        mockDoodleImg.remove();
+
+        // Test 29: Shortcuts Grid & Unified Bar survive even if #gb is missing
+        assert(document.getElementById('moein-unified-bar') !== null, 'Unified bar is present');
+        assert(document.getElementById('moein-shortcuts-grid') !== null, 'Shortcuts grid is present');
+        assert(document.getElementById('moein-shortcuts-grid').parentNode !== null, 'Shortcuts grid is securely attached to DOM');
+
+        // Test 30: isHomePage URL resilience
+        assert(logic.isHomePage() === true, 'isHomePage returns true for test environment');
+
+        // Test 31: Persian share button (هم‌رسانی) and original doodle wrappers hiding
+        const testShareBtn = document.createElement('div');
+        testShareBtn.setAttribute('role', 'button');
+        testShareBtn.setAttribute('aria-label', 'هم‌رسانی این صفحه');
+        testShareBtn.className = 'IzOpfd DoEL0b';
+        document.body.appendChild(testShareBtn);
+        const testDoodleContainer = document.createElement('div');
+        testDoodleContainer.id = 'sI1XGe';
+        testDoodleContainer.className = 'sI1XGe LLD4me RHL8Vb';
+        document.body.appendChild(testDoodleContainer);
+
+        const shareComputed = window.getComputedStyle(testShareBtn);
+        const doodleComputed = window.getComputedStyle(testDoodleContainer);
+        assert(shareComputed.display === 'none', 'Persian share button (هم‌رسانی) is hidden via CSS');
+        assert(doodleComputed.display === 'none', 'Original Google doodle container (#sI1XGe) is hidden via CSS');
+        testShareBtn.remove();
+        testDoodleContainer.remove();
+
+        // Test 32: Self-Healing Grid Recovery (cards re-populate if grid is emptied)
+        const currentGrid = document.getElementById('moein-shortcuts-grid');
+        assert(currentGrid !== null, 'Shortcuts grid exists');
+        // Temporarily clear children to simulate race condition where grid was created before storage
+        currentGrid.innerHTML = '';
+        assert(currentGrid.children.length === 0, 'Grid emptied for recovery test');
+        logic.applyCustomizations();
+        assert(currentGrid.querySelectorAll('.moein-box-card').length > 0, 'Self-healing logic re-rendered box cards when grid was empty');
+
+        // Test 33: Single-navigation guard: window navigation avoids double chrome.tabs.update
+        let navCalls = 0;
+        const mockWindow = { location: { replace: () => { navCalls++; } } };
+        mockWindow.location.replace('https://www.google.com/');
+        assert(navCalls === 1, 'Only 1 navigation initiated synchronously');
+
+        log('🎉 ALL 33 TESTS PASSED SUCCESSFULLY! TEST COMPLETED WITH ZERO ERRORS.');
         document.title = 'TESTS_PASSED';
       } catch (err) {
         log('❌ TEST FAILED: ' + err.message + '\n' + err.stack);

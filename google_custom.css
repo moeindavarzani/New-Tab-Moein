@@ -24,7 +24,25 @@ body.moein-tab-active #SIvCob {
 body.hp .FPdoLc,
 body.hp div[jsname="VlcAae"],
 body.moein-tab-active .FPdoLc,
-body.moein-tab-active div[jsname="VlcAae"] {
+body.moein-tab-active div[jsname="VlcAae"],
+body.hp [aria-label*="هم‌رسانی"],
+body.moein-tab-active [aria-label*="هم‌رسانی"],
+body.hp [aria-label*="اشتراک"],
+body.moein-tab-active [aria-label*="اشتراک"],
+body.hp [aria-label*="Share"],
+body.moein-tab-active [aria-label*="Share"],
+body.moein-tab-active .IzOpfd,
+body.moein-tab-active .DoEL0b,
+body.moein-tab-active .fXAuMb,
+body.moein-tab-active .u7uP2d,
+body.hp #sI1XGe,
+body.moein-tab-active #sI1XGe,
+body.hp .sI1XGe,
+body.moein-tab-active .sI1XGe,
+body.hp .LLD4me,
+body.moein-tab-active .LLD4me,
+body.hp .RHL8Vb,
+body.moein-tab-active .RHL8Vb {
   display: none !important;
 }
 
@@ -54,6 +72,20 @@ body.moein-tab-active div[jsname="VlcAae"] {
   width: auto !important;
   max-width: 150px !important;
   display: block !important;
+  object-fit: contain !important;
+}
+
+#moein-bar-logo a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-decoration: none !important;
+}
+
+#moein-bar-logo .moein-bar-logo-fallback {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
 
 /* Slot 2 (Center Column): Search Bar in dead center */

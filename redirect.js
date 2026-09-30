@@ -8,16 +8,26 @@
     return;
   }
 
-  // Online mode: Redirect to Google homepage
-  if (chrome && chrome.tabs && chrome.tabs.getCurrent) {
+  // Online mode: Immediately navigate to Google homepage synchronously to prevent UI flash
+  let navigated = false;
+  try {
+    window.location.replace("https://www.google.com/");
+    navigated = true;
+  } catch (e) {
+    try {
+      window.location.href = "https://www.google.com/";
+      navigated = true;
+    } catch (err) {
+      navigated = false;
+    }
+  }
+
+  // Only fall back to chrome.tabs API if window navigation failed completely
+  if (!navigated && typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.getCurrent) {
     chrome.tabs.getCurrent((tab) => {
       if (tab && tab.id) {
         chrome.tabs.update(tab.id, { url: "https://www.google.com/" });
-      } else {
-        window.location.replace("https://www.google.com/");
       }
     });
-  } else {
-    window.location.replace("https://www.google.com/");
   }
 })();

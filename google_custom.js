@@ -6,7 +6,13 @@
   const isHomePage = () => {
     if (window.__TAB_MOEIN_TEST__) return true;
     if (location.protocol === 'chrome-extension:') return true;
-    return location.pathname === '/' || location.pathname === '/webhp' || location.pathname === '';
+    const cleanPath = (location.pathname || '').replace(/\/+$/, '');
+    return cleanPath === '' ||
+           cleanPath === '/webhp' ||
+           cleanPath.startsWith('/_/chrome/newtab') ||
+           cleanPath === '/newtab' ||
+           cleanPath === '/m' ||
+           cleanPath === '/ig';
   };
 
   const MAX_BOXES = 12;
@@ -2094,6 +2100,19 @@
 
     // 1. If we are on newtab.html (extension page):
     if (isExtension) {
+      // Check if we are ACTUALLY in offline mode
+      const isOfflineMode = Boolean(
+        window.__TAB_MOEIN_OFFLINE__ ||
+        location.search.includes('offline') ||
+        !navigator.onLine ||
+        window.__TAB_MOEIN_TEST__
+      );
+
+      // If online and redirecting to Google, never render the offline UI
+      if (!isOfflineMode) {
+        return;
+      }
+
       if (!document.getElementById('moein-unified-bar')) {
         const bar = document.createElement('div');
         bar.id = 'moein-unified-bar';
@@ -2137,96 +2156,171 @@
 
       // Assemble 2x5 Shortcuts Grid Container on newtab.html
       const currentBar = document.getElementById('moein-unified-bar');
-      if (currentBar && !document.getElementById('moein-shortcuts-grid')) {
-        const grid = document.createElement('div');
-        grid.id = 'moein-shortcuts-grid';
-        currentBar.parentNode.insertBefore(grid, currentBar.nextSibling);
-
-        if (isStorageInitialized) {
-          renderShortcutsGrid();
-        } else {
-          loadBoxesFromStorage(() => {
+      if (currentBar) {
+        let grid = document.getElementById('moein-shortcuts-grid');
+        if (!grid) {
+          grid = document.createElement('div');
+          grid.id = 'moein-shortcuts-grid';
+          currentBar.parentNode.insertBefore(grid, currentBar.nextSibling);
+        }
+        if (grid.children.length === 0 || !grid.querySelector('.moein-box-card, .moein-add-card')) {
+          if (isStorageInitialized) {
             renderShortcutsGrid();
-          });
+          } else {
+            loadBoxesFromStorage(() => {
+              renderShortcutsGrid();
+            });
+          }
         }
       }
       return;
     }
 
     // 2. We are on Google Homepage (google.com):
-    // 1. Hide footer
+    // 1. Hide footer, language prompt, search buttons under search box, and doodle share buttons
     document.querySelectorAll('div[role="contentinfo"], footer, .Ij8KCd, #footer').forEach(el => {
       el.style.setProperty('display', 'none', 'important');
     });
 
-    // 2. Hide Google offered in English
     const lang = document.getElementById('SIvCob');
     if (lang) lang.style.setProperty('display', 'none', 'important');
 
-    // 3. Hide Search buttons under search box
     document.querySelectorAll('.FPdoLc, div[jsname="VlcAae"]').forEach(el => {
       el.style.setProperty('display', 'none', 'important');
     });
 
-    // 4. Assemble 2x2 Nav Grid
+    document.querySelectorAll('[aria-label*="هم‌رسانی"], [aria-label*="اشتراک"], [aria-label*="Share"], .IzOpfd, .DoEL0b, .fXAuMb, .u7uP2d').forEach(el => {
+      el.style.setProperty('display', 'none', 'important');
+    });
+
+    // 2. Assemble 2x2 Nav Grid from Google Header (#gb)
     let navGrid = document.getElementById('moein-nav-grid');
     const gb = document.getElementById('gb');
 
-    if (!navGrid && gb) {
+    if (gb) {
       const ogbl = gb.querySelector('[data-ogbl]');
       const gbwa = document.getElementById('gbwa');
-      const avatar = gb.querySelector('[data-ogsr-up]') ||
-                     gb.querySelector('a[href*="myaccount.google.com"]')?.closest('.gb_L, .gb_z, .gb_A, .gb_d, div') ||
-                     gb.querySelector('a[href*="accounts.google.com"]')?.closest('.gb_L, .gb_z, .gb_A, .gb_d, div');
+      const avatarOrSignIn = gb.querySelector('[data-ogsr-up]') ||
+                             gb.querySelector('a[href*="myaccount.google.com"]')?.closest('.gb_L, .gb_z, .gb_A, .gb_d, div') ||
+                             gb.querySelector('a[href*="accounts.google.com/ServiceLogin"]')?.closest('.gb_L, .gb_z, .gb_A, .gb_d, .gb_1, div, a') ||
+                             gb.querySelector('a[href*="accounts.google.com"]')?.closest('.gb_L, .gb_z, .gb_A, .gb_d, .gb_1, div, a') ||
+                             gb.querySelector('a[href*="ServiceLogin"]') ||
+                             gb.querySelector('.gb_1') ||
+                             gb.querySelector('.gb_2');
 
-      if (ogbl && gbwa && avatar) {
+      const gmailLink = gb.querySelector('a[href*="mail.google.com"]');
+      const imagesLink = gb.querySelector('a[href*="imghp"], a[href*="images.google.com"]');
+
+      if (!navGrid && (gbwa || avatarOrSignIn || (ogbl && ogbl.children.length > 0) || gmailLink || imagesLink)) {
         navGrid = document.createElement('div');
         navGrid.id = 'moein-nav-grid';
+      }
 
-        // Row 1: 9-dots and Avatar
-        navGrid.appendChild(gbwa);
-        navGrid.appendChild(avatar);
+      if (navGrid) {
+        // Row 1: 9-dots (Apps) and Avatar / Sign-in button
+        if (gbwa && !navGrid.contains(gbwa)) navGrid.appendChild(gbwa);
+        if (avatarOrSignIn && !navGrid.contains(avatarOrSignIn)) navGrid.appendChild(avatarOrSignIn);
 
         // Row 2: Gmail and Images
-        while (ogbl.children.length > 0) {
-          navGrid.appendChild(ogbl.children[0]);
+        if (ogbl && ogbl.children.length > 0) {
+          while (ogbl.children.length > 0) {
+            navGrid.appendChild(ogbl.children[0]);
+          }
+          ogbl.style.display = 'none';
+        } else {
+          if (gmailLink && !navGrid.contains(gmailLink)) {
+            const parent = gmailLink.parentElement && gmailLink.parentElement !== gb ? gmailLink.parentElement : gmailLink;
+            navGrid.appendChild(parent);
+          }
+          if (imagesLink && !navGrid.contains(imagesLink)) {
+            const parent = imagesLink.parentElement && imagesLink.parentElement !== gb ? imagesLink.parentElement : imagesLink;
+            navGrid.appendChild(parent);
+          }
         }
-
-        if (ogbl) ogbl.style.display = 'none';
       }
     }
 
-    // 5. Find Logo Element (SVG or IMG)
-    const logoEl = document.querySelector('svg.ESTs9d') ||
-                   document.querySelector('svg[aria-label="Google"]') ||
-                   document.querySelector('img[alt="Google"]') ||
-                   document.querySelector('#hplogo') ||
-                   document.querySelector('.k1zIA');
+    // 3. Find Logo Element (SVG, Doodle IMG, Doodle link, or embedded SVG fallback)
+    let logoEl = document.querySelector('svg.ESTs9d') ||
+                 document.querySelector('svg[aria-label="Google"]') ||
+                 document.querySelector('img[alt="Google"]') ||
+                 document.querySelector('#hplogo') ||
+                 document.querySelector('.k1zIA img') ||
+                 document.querySelector('.k1zIA svg') ||
+                 document.querySelector('img[src*="logos/doodles"]') ||
+                 document.querySelector('img[src*="/logos/"]') ||
+                 document.querySelector('div#logo img') ||
+                 document.querySelector('.logo img') ||
+                 document.querySelector('a[href*="doodles"] img') ||
+                 document.querySelector('div[data-ved] img') ||
+                 document.querySelector('img[id*="logo" i]') ||
+                 document.querySelector('img[alt*="logo" i]') ||
+                 document.querySelector('img[src*="google" i][src*="logo" i]') ||
+                 document.querySelector('picture img') ||
+                 document.querySelector('.k1zIA');
+
+    if (logoEl && logoEl.closest) {
+      const doodleLink = logoEl.closest('a[href*="/search"], a[href*="doodles"], a[href*="google.com"]');
+      if (doodleLink && !doodleLink.closest('#moein-unified-bar')) {
+        logoEl = doodleLink;
+      }
+    }
+
+    if (logoEl && logoEl.closest && logoEl.closest('#moein-unified-bar')) {
+      logoEl = null;
+    }
 
     const searchForm = document.querySelector('form[action="/search"]') ||
-                       document.querySelector('form[role="search"]');
+                       document.querySelector('form[action*="/search"]') ||
+                       document.querySelector('form[role="search"]') ||
+                       document.querySelector('textarea[name="q"]')?.closest('form') ||
+                       document.querySelector('input[name="q"]')?.closest('form') ||
+                       document.querySelector('form');
 
-    // 6. Assemble the Single Unified Bar ONLY when all Google elements exist
-    if (navGrid && logoEl && searchForm && !document.getElementById('moein-unified-bar')) {
-      const bar = document.createElement('div');
+    const getFallbackLogo = () => {
+      const fallbackDiv = document.createElement('div');
+      fallbackDiv.className = 'moein-bar-logo-fallback';
+      fallbackDiv.innerHTML = googleLogoSvg;
+      return fallbackDiv.firstElementChild || fallbackDiv;
+    };
+
+    // 4. Assemble the Single Unified Bar
+    let bar = document.getElementById('moein-unified-bar');
+    if (!bar) {
+      bar = document.createElement('div');
       bar.id = 'moein-unified-bar';
 
       // Slot 1 (Right in RTL): Google Logo
       const logoSlot = document.createElement('div');
       logoSlot.id = 'moein-bar-logo';
-      logoSlot.appendChild(logoEl);
+      if (logoEl) {
+        logoSlot.appendChild(logoEl);
+      } else {
+        logoSlot.appendChild(getFallbackLogo());
+      }
+      logoSlot.addEventListener('click', (e) => {
+        if (!e.target.closest('a')) {
+          window.location.href = 'https://www.google.com/';
+        }
+      });
       bar.appendChild(logoSlot);
 
       // Slot 2 (Center in RTL): Search Bar
       const searchSlot = document.createElement('div');
       searchSlot.id = 'moein-bar-search';
-      searchSlot.appendChild(searchForm);
+      if (searchForm && !searchForm.closest('#moein-unified-bar')) {
+        searchSlot.appendChild(searchForm);
+      }
       bar.appendChild(searchSlot);
 
-      // Slot 3 (Left in RTL): 4 Buttons in 2x2 grid
+      // Slot 3 (Left in RTL): 4 Buttons in 2x2 grid or placeholder
       const navSlot = document.createElement('div');
       navSlot.id = 'moein-bar-nav';
-      navSlot.appendChild(navGrid);
+      if (navGrid && !navGrid.closest('#moein-unified-bar')) {
+        navSlot.appendChild(navGrid);
+      } else {
+        navSlot.innerHTML = `<div class="moein-nav-grid-placeholder"></div>`;
+      }
       bar.appendChild(navSlot);
 
       // Insert at the top of the body
@@ -2234,20 +2328,68 @@
 
       // Clean up original containers
       if (gb) gb.style.display = 'none';
-      document.querySelectorAll('.k1zIA').forEach(el => el.style.display = 'none');
+      const hideSelectors = [
+        '.k1zIA', '#sI1XGe', '.sI1XGe', '.LLD4me', '.RHL8Vb', '.IzOpfd', '.DoEL0b',
+        '[aria-label*="هم‌رسانی"]', '[aria-label*="اشتراک"]', '[aria-label*="Share"]',
+        '.fXAuMb', '.u7uP2d', '.o3j99.LLD4me', '.o3j99.nDcEnd'
+      ];
+      document.querySelectorAll(hideSelectors.join(', ')).forEach(el => {
+        if (!el.closest('#moein-unified-bar')) {
+          el.style.setProperty('display', 'none', 'important');
+        }
+      });
 
       // If connection was lost while opening Google, show offline banner inside search slot
       if (!navigator.onLine) {
         showGoogleOfflineBanner();
       }
+    } else {
+      // Bar already exists, update slots if late-arriving elements exist
+      const searchSlot = document.getElementById('moein-bar-search');
+      if (searchSlot && searchForm && !searchSlot.contains(searchForm)) {
+        searchSlot.appendChild(searchForm);
+      }
+
+      const navSlot = document.getElementById('moein-bar-nav');
+      if (navSlot && navGrid && !navSlot.contains(navGrid)) {
+        navSlot.innerHTML = '';
+        navSlot.appendChild(navGrid);
+      }
+
+      const logoSlot = document.getElementById('moein-bar-logo');
+      if (logoSlot && logoEl && !logoSlot.contains(logoEl)) {
+        if (logoSlot.querySelector('.moein-bar-logo-fallback') || logoSlot.querySelector('.moein-bar-logo-svg')) {
+          logoSlot.innerHTML = '';
+        }
+        logoSlot.appendChild(logoEl);
+      }
+
+      if (gb) gb.style.display = 'none';
+      const hideSelectors = [
+        '.k1zIA', '#sI1XGe', '.sI1XGe', '.LLD4me', '.RHL8Vb', '.IzOpfd', '.DoEL0b',
+        '[aria-label*="هم‌رسانی"]', '[aria-label*="اشتراک"]', '[aria-label*="Share"]',
+        '.fXAuMb', '.u7uP2d', '.o3j99.LLD4me', '.o3j99.nDcEnd'
+      ];
+      document.querySelectorAll(hideSelectors.join(', ')).forEach(el => {
+        if (!el.closest('#moein-unified-bar')) {
+          el.style.setProperty('display', 'none', 'important');
+        }
+      });
     }
 
-    // 7. Assemble 2x5 Shortcuts Grid Container
+    // 5. Assemble Shortcuts Grid Container
+    let grid = document.getElementById('moein-shortcuts-grid');
     const currentBar = document.getElementById('moein-unified-bar');
-    if (currentBar && !document.getElementById('moein-shortcuts-grid')) {
-      const grid = document.createElement('div');
+
+    if (!grid) {
+      grid = document.createElement('div');
       grid.id = 'moein-shortcuts-grid';
-      currentBar.parentNode.insertBefore(grid, currentBar.nextSibling);
+
+      if (currentBar && currentBar.parentNode) {
+        currentBar.parentNode.insertBefore(grid, currentBar.nextSibling);
+      } else {
+        document.body.appendChild(grid);
+      }
 
       if (isStorageInitialized) {
         renderShortcutsGrid();
@@ -2255,6 +2397,19 @@
         loadBoxesFromStorage(() => {
           renderShortcutsGrid();
         });
+      }
+    } else {
+      if (currentBar && grid.previousElementSibling !== currentBar && currentBar.parentNode) {
+        currentBar.parentNode.insertBefore(grid, currentBar.nextSibling);
+      }
+      if (grid.children.length === 0 || !grid.querySelector('.moein-box-card, .moein-add-card')) {
+        if (isStorageInitialized) {
+          renderShortcutsGrid();
+        } else {
+          loadBoxesFromStorage(() => {
+            renderShortcutsGrid();
+          });
+        }
       }
     }
   };
@@ -2341,7 +2496,11 @@
           clearInterval(offlineCheckInterval);
           offlineCheckInterval = null;
         }
-      }
+      },
+      applyCustomizations,
+      isHomePage,
+      showGoogleOfflineBanner,
+      hideGoogleOfflineBanner
     };
   }
 })();
