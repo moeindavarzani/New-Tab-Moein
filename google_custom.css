@@ -1,5 +1,5 @@
 /* Prevent unnecessary horizontal scrollbar on homepage */
-html, body.hp, body.moein-tab-active {
+html:has(body.moein-tab-active), body.hp, body.moein-tab-active {
   overflow-x: hidden !important;
   overflow-y: auto !important;
 }

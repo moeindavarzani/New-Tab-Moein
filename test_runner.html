@@ -628,8 +628,25 @@
         assert(document.getElementById('moein-shortcuts-grid') !== null, 'Shortcuts grid is present');
         assert(document.getElementById('moein-shortcuts-grid').parentNode !== null, 'Shortcuts grid is securely attached to DOM');
 
-        // Test 30: isHomePage URL resilience
-        assert(logic.isHomePage() === true, 'isHomePage returns true for test environment');
+        // Test 30: isHomePage URL & Domain Isolation Resilience
+        assert(logic.isHomePage() === true, 'isHomePage returns true for test environment default');
+        assert(logic.isHomePage('https://www.google.com/') === true, 'isHomePage returns true for www.google.com/');
+        assert(logic.isHomePage('https://google.com/') === true, 'isHomePage returns true for google.com/');
+        assert(logic.isHomePage('https://www.google.co.uk/') === true, 'isHomePage returns true for regional www.google.co.uk/');
+        assert(logic.isHomePage('https://translate.google.com/') === false, 'isHomePage returns false for translate.google.com');
+        assert(logic.isHomePage('https://myaccount.google.com/') === false, 'isHomePage returns false for myaccount.google.com');
+        assert(logic.isHomePage('https://mail.google.com/') === false, 'isHomePage returns false for mail.google.com');
+        assert(logic.isHomePage('https://drive.google.com/') === false, 'isHomePage returns false for drive.google.com');
+        assert(logic.isHomePage('https://accounts.google.com/') === false, 'isHomePage returns false for accounts.google.com');
+        assert(logic.isHomePage('https://calendar.google.com/') === false, 'isHomePage returns false for calendar.google.com');
+        assert(logic.isHomePage('https://maps.google.com/') === false, 'isHomePage returns false for maps.google.com');
+        assert(logic.isHomePage('https://play.google.com/') === false, 'isHomePage returns false for play.google.com');
+        assert(logic.isHomePage('https://docs.google.com/') === false, 'isHomePage returns false for docs.google.com');
+        assert(logic.isHomePage('https://gemini.google.com/') === false, 'isHomePage returns false for gemini.google.com');
+        assert(logic.isHomePage('https://translate.google.co.uk/') === false, 'isHomePage returns false for translate.google.co.uk');
+        assert(logic.isHomePage('https://www.google.com/search?q=test') === false, 'isHomePage returns false for search results');
+        assert(logic.isHomePage('https://www.google.com/?q=test') === false, 'isHomePage returns false for query param search');
+        assert(logic.isHomePage('https://google.evil.com/') === false, 'isHomePage returns false for spoofed attacker domain');
 
         // Test 31: Persian share button (هم‌رسانی) and original doodle wrappers hiding
         const testShareBtn = document.createElement('div');
@@ -664,7 +681,22 @@
         mockWindow.location.replace('https://www.google.com/');
         assert(navCalls === 1, 'Only 1 navigation initiated synchronously');
 
-        log('🎉 ALL 33 TESTS PASSED SUCCESSFULLY! TEST COMPLETED WITH ZERO ERRORS.');
+        // Test 34: Domain & Service Subdomain Isolation Guard
+        assert(logic.isGoogleHomepageHostname('translate.google.com') === false, 'translate.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('myaccount.google.com') === false, 'myaccount.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('mail.google.com') === false, 'mail.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('accounts.google.com') === false, 'accounts.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('drive.google.com') === false, 'drive.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('calendar.google.com') === false, 'calendar.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('maps.google.com') === false, 'maps.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('play.google.com') === false, 'play.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('docs.google.com') === false, 'docs.google.com is rejected as homepage host');
+        assert(logic.isGoogleHomepageHostname('www.google.com') === true, 'www.google.com is recognized as valid homepage host');
+        assert(logic.isGoogleHomepageHostname('google.com') === true, 'google.com is recognized as valid homepage host');
+        assert(logic.isGoogleHomepageHostname('google.co.uk') === true, 'google.co.uk is recognized as valid homepage host');
+        assert(logic.isGoogleHomepageHostname('google.de') === true, 'google.de is recognized as valid homepage host');
+
+        log('🎉 ALL 34 TESTS PASSED SUCCESSFULLY! TEST COMPLETED WITH ZERO ERRORS.');
         document.title = 'TESTS_PASSED';
       } catch (err) {
         log('❌ TEST FAILED: ' + err.message + '\n' + err.stack);

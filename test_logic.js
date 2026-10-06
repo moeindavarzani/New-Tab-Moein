@@ -675,26 +675,164 @@ assert.strictEqual(githubSources.length, 4, 'Only 4 tiers when domain is already
 console.log('✓ Multi-Tier Favicon Resolver & Subdomain Fallback Logic passed');
 
 console.log('--- 16. Testing Google Homepage & Resilient Unified Bar/Folders Assembly Logic ---');
-// 16a. isHomePage path resolution
-const testIsHomePage = (pathname) => {
-  const cleanPath = (pathname || '').replace(/\/+$/, '');
-  return cleanPath === '' ||
-         cleanPath === '/webhp' ||
-         cleanPath.startsWith('/_/chrome/newtab') ||
-         cleanPath === '/newtab' ||
-         cleanPath === '/m' ||
-         cleanPath === '/ig';
+// 16a. isGoogleHomepageHostname and isHomePage full URL & subdomain isolation
+const isGoogleHomepageHostname = (hostname) => {
+  if (!hostname || typeof hostname !== 'string') return false;
+  const cleanHost = hostname.trim().toLowerCase();
+  return /^(?:www\.)?google\.(?:[a-z]{2,4}|(?:co|com|org|net)\.[a-z]{2})$/i.test(cleanHost);
 };
-assert.strictEqual(testIsHomePage('/'), true, 'Matches root /');
-assert.strictEqual(testIsHomePage(''), true, 'Matches empty string');
-assert.strictEqual(testIsHomePage('/webhp'), true, 'Matches /webhp');
-assert.strictEqual(testIsHomePage('///'), true, 'Matches trailing slashes ///');
-assert.strictEqual(testIsHomePage('/_/chrome/newtab'), true, 'Matches /_/chrome/newtab (Chrome New Tab URL)');
-assert.strictEqual(testIsHomePage('/newtab'), true, 'Matches /newtab');
-assert.strictEqual(testIsHomePage('/m'), true, 'Matches /m mobile google');
-assert.strictEqual(testIsHomePage('/ig'), true, 'Matches /ig');
-assert.strictEqual(testIsHomePage('/search'), false, 'Does not match /search results page');
-assert.strictEqual(testIsHomePage('/imghp'), false, 'Does not match /imghp');
+
+const isHomePage = (urlOrLocation) => {
+  let protocol = '';
+  let hostname = '';
+  let pathname = '';
+  let search = '';
+
+  if (typeof urlOrLocation === 'string') {
+    try {
+      const parsed = new URL(urlOrLocation, 'https://www.google.com');
+      protocol = parsed.protocol;
+      hostname = parsed.hostname;
+      pathname = parsed.pathname;
+      search = parsed.search;
+    } catch (e) {
+      return false;
+    }
+  } else if (urlOrLocation && typeof urlOrLocation === 'object') {
+    protocol = urlOrLocation.protocol || '';
+    hostname = urlOrLocation.hostname || '';
+    pathname = urlOrLocation.pathname || '';
+    search = urlOrLocation.search || '';
+  } else {
+    return false;
+  }
+
+  if (protocol === 'chrome-extension:') {
+    return true;
+  }
+
+  if (!isGoogleHomepageHostname(hostname)) {
+    return false;
+  }
+
+  const cleanPath = (pathname || '').replace(/\/+$/, '');
+  const isValidPath = cleanPath === '' ||
+                      cleanPath === '/webhp' ||
+                      cleanPath.startsWith('/_/chrome/newtab') ||
+                      cleanPath === '/newtab' ||
+                      cleanPath === '/m' ||
+                      cleanPath === '/ig';
+
+  if (!isValidPath) {
+    return false;
+  }
+
+  if (search) {
+    try {
+      const params = new URLSearchParams(search);
+      const query = params.get('q');
+      if (query && query.trim().length > 0) {
+        return false;
+      }
+      const tbm = params.get('tbm');
+      if (tbm && tbm.trim().length > 0) {
+        return false;
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  return true;
+};
+
+// 16a-1: Hostname validation
+assert.strictEqual(isGoogleHomepageHostname('google.com'), true, 'Validates google.com');
+assert.strictEqual(isGoogleHomepageHostname('www.google.com'), true, 'Validates www.google.com');
+assert.strictEqual(isGoogleHomepageHostname('google.co.uk'), true, 'Validates google.co.uk');
+assert.strictEqual(isGoogleHomepageHostname('www.google.co.uk'), true, 'Validates www.google.co.uk');
+assert.strictEqual(isGoogleHomepageHostname('google.com.br'), true, 'Validates google.com.br');
+assert.strictEqual(isGoogleHomepageHostname('google.de'), true, 'Validates google.de');
+assert.strictEqual(isGoogleHomepageHostname('google.fr'), true, 'Validates google.fr');
+assert.strictEqual(isGoogleHomepageHostname('google.ca'), true, 'Validates google.ca');
+assert.strictEqual(isGoogleHomepageHostname('google.co.jp'), true, 'Validates google.co.jp');
+assert.strictEqual(isGoogleHomepageHostname('google.com.tr'), true, 'Validates google.com.tr');
+
+// Dedicated service subdomains MUST return false
+assert.strictEqual(isGoogleHomepageHostname('translate.google.com'), false, 'Rejects translate.google.com');
+assert.strictEqual(isGoogleHomepageHostname('myaccount.google.com'), false, 'Rejects myaccount.google.com');
+assert.strictEqual(isGoogleHomepageHostname('mail.google.com'), false, 'Rejects mail.google.com');
+assert.strictEqual(isGoogleHomepageHostname('drive.google.com'), false, 'Rejects drive.google.com');
+assert.strictEqual(isGoogleHomepageHostname('accounts.google.com'), false, 'Rejects accounts.google.com');
+assert.strictEqual(isGoogleHomepageHostname('calendar.google.com'), false, 'Rejects calendar.google.com');
+assert.strictEqual(isGoogleHomepageHostname('maps.google.com'), false, 'Rejects maps.google.com');
+assert.strictEqual(isGoogleHomepageHostname('play.google.com'), false, 'Rejects play.google.com');
+assert.strictEqual(isGoogleHomepageHostname('docs.google.com'), false, 'Rejects docs.google.com');
+assert.strictEqual(isGoogleHomepageHostname('photos.google.com'), false, 'Rejects photos.google.com');
+assert.strictEqual(isGoogleHomepageHostname('news.google.com'), false, 'Rejects news.google.com');
+assert.strictEqual(isGoogleHomepageHostname('scholar.google.com'), false, 'Rejects scholar.google.com');
+assert.strictEqual(isGoogleHomepageHostname('gemini.google.com'), false, 'Rejects gemini.google.com');
+assert.strictEqual(isGoogleHomepageHostname('aistudio.google.com'), false, 'Rejects aistudio.google.com');
+assert.strictEqual(isGoogleHomepageHostname('translate.google.co.uk'), false, 'Rejects regional translate.google.co.uk');
+assert.strictEqual(isGoogleHomepageHostname('mail.google.de'), false, 'Rejects regional mail.google.de');
+
+// Spoofed / Attacker domains MUST return false
+assert.strictEqual(isGoogleHomepageHostname('google.evil.com'), false, 'Rejects attacker domain google.evil.com');
+assert.strictEqual(isGoogleHomepageHostname('notgoogle.com'), false, 'Rejects notgoogle.com');
+assert.strictEqual(isGoogleHomepageHostname('google.com.attacker.com'), false, 'Rejects 4-part spoof domain');
+assert.strictEqual(isGoogleHomepageHostname('example.com'), false, 'Rejects example.com');
+
+// 16a-2: Full isHomePage URL checks
+// Valid homepages
+assert.strictEqual(isHomePage('https://www.google.com/'), true, 'Validates https://www.google.com/');
+assert.strictEqual(isHomePage('https://google.com/'), true, 'Validates https://google.com/');
+assert.strictEqual(isHomePage('https://www.google.com'), true, 'Validates https://www.google.com without trailing slash');
+assert.strictEqual(isHomePage('https://google.com'), true, 'Validates https://google.com without trailing slash');
+assert.strictEqual(isHomePage('https://www.google.co.uk/'), true, 'Validates https://www.google.co.uk/');
+assert.strictEqual(isHomePage('https://google.de/'), true, 'Validates https://google.de/');
+assert.strictEqual(isHomePage('https://www.google.com/webhp'), true, 'Validates /webhp');
+assert.strictEqual(isHomePage('https://www.google.com/_/chrome/newtab'), true, 'Validates Chrome newtab internal path');
+assert.strictEqual(isHomePage('https://www.google.com/newtab'), true, 'Validates /newtab');
+assert.strictEqual(isHomePage('https://www.google.com/m'), true, 'Validates /m mobile google');
+assert.strictEqual(isHomePage('https://www.google.com/ig'), true, 'Validates /ig');
+assert.strictEqual(isHomePage('chrome-extension://mock-id/newtab.html'), true, 'Validates extension newtab.html');
+assert.strictEqual(isHomePage('https://www.google.com/?hl=fa'), true, 'Validates homepage with language param');
+assert.strictEqual(isHomePage('https://www.google.com/?gws_rd=ssl'), true, 'Validates homepage with ssl redirect param');
+assert.strictEqual(isHomePage('https://www.google.com/?q='), true, 'Validates homepage with empty search param');
+
+// Disallowed service subdomains
+assert.strictEqual(isHomePage('https://translate.google.com/'), false, 'Rejects https://translate.google.com/');
+assert.strictEqual(isHomePage('https://translate.google.com'), false, 'Rejects https://translate.google.com');
+assert.strictEqual(isHomePage('https://myaccount.google.com/'), false, 'Rejects https://myaccount.google.com/');
+assert.strictEqual(isHomePage('https://myaccount.google.com'), false, 'Rejects https://myaccount.google.com');
+assert.strictEqual(isHomePage('https://mail.google.com/'), false, 'Rejects https://mail.google.com/');
+assert.strictEqual(isHomePage('https://mail.google.com/mail/u/0/'), false, 'Rejects Gmail inbox');
+assert.strictEqual(isHomePage('https://drive.google.com/'), false, 'Rejects https://drive.google.com/');
+assert.strictEqual(isHomePage('https://drive.google.com/drive/my-drive'), false, 'Rejects Drive view');
+assert.strictEqual(isHomePage('https://calendar.google.com/'), false, 'Rejects Calendar');
+assert.strictEqual(isHomePage('https://maps.google.com/'), false, 'Rejects Maps');
+assert.strictEqual(isHomePage('https://accounts.google.com/'), false, 'Rejects Accounts');
+assert.strictEqual(isHomePage('https://play.google.com/'), false, 'Rejects Play');
+assert.strictEqual(isHomePage('https://docs.google.com/'), false, 'Rejects Docs');
+assert.strictEqual(isHomePage('https://gemini.google.com/'), false, 'Rejects Gemini');
+assert.strictEqual(isHomePage('https://translate.google.co.uk/'), false, 'Rejects regional Translate');
+assert.strictEqual(isHomePage('https://mail.google.de/'), false, 'Rejects regional Mail');
+
+// Disallowed non-homepage paths and queries on google.com
+assert.strictEqual(isHomePage('https://www.google.com/search?q=test'), false, 'Rejects search results /search');
+assert.strictEqual(isHomePage('https://www.google.com/imghp'), false, 'Rejects /imghp');
+assert.strictEqual(isHomePage('https://www.google.com/maps'), false, 'Rejects /maps');
+assert.strictEqual(isHomePage('https://www.google.com/finance'), false, 'Rejects /finance');
+assert.strictEqual(isHomePage('https://www.google.com/preferences'), false, 'Rejects /preferences');
+assert.strictEqual(isHomePage('https://www.google.com/?q=test'), false, 'Rejects search query parameter ?q=test');
+assert.strictEqual(isHomePage('https://www.google.com/webhp?q=test'), false, 'Rejects search query on /webhp');
+assert.strictEqual(isHomePage('https://www.google.com/?tbm=isch'), false, 'Rejects search mode parameter ?tbm=isch');
+
+// Disallowed spoofed / attacker / external domains
+assert.strictEqual(isHomePage('https://google.evil.com/'), false, 'Rejects attacker domain google.evil.com');
+assert.strictEqual(isHomePage('https://notgoogle.com/'), false, 'Rejects notgoogle.com');
+assert.strictEqual(isHomePage('https://google.com.attacker.com/'), false, 'Rejects 4-part spoof URL');
+assert.strictEqual(isHomePage('https://example.com/'), false, 'Rejects external website');
 
 // 16b. Extension page offline mode determination (prevents millisecond offline flash when online)
 const computeIsOfflineMode = ({ offlineFlag, search, onLine, isTest }) => {
@@ -740,7 +878,7 @@ if (fs.existsSync(chromePath)) {
   const runnerPath = path.resolve(__dirname, 'test_runner.html').replace(/\\/g, '/');
   const domCmd = `"${chromePath}" --headless=new --disable-gpu --virtual-time-budget=6000 --dump-dom "file:///${runnerPath}"`;
   const domOutput = execSync(domCmd, { encoding: 'utf8', maxBuffer: 10 * 1024 * 1024 });
-  const hasPassedTitle = domOutput.includes('<title>TESTS_PASSED</title>') || domOutput.includes('ALL 33 TESTS PASSED SUCCESSFULLY') || domOutput.includes('ALL 30 TESTS PASSED SUCCESSFULLY') || domOutput.includes('ALL 26 TESTS PASSED SUCCESSFULLY');
+  const hasPassedTitle = domOutput.includes('<title>TESTS_PASSED</title>') || domOutput.includes('ALL 34 TESTS PASSED SUCCESSFULLY') || domOutput.includes('ALL 33 TESTS PASSED SUCCESSFULLY') || domOutput.includes('ALL 30 TESTS PASSED SUCCESSFULLY') || domOutput.includes('ALL 26 TESTS PASSED SUCCESSFULLY');
   const hasFailedTitle = domOutput.includes('<title>TESTS_FAILED</title>');
   if (!hasPassedTitle || hasFailedTitle) {
     const match = domOutput.match(/<div id="test-output"[^>]*>([\s\S]*?)<\/div>/);
@@ -748,7 +886,7 @@ if (fs.existsSync(chromePath)) {
   }
   assert.strictEqual(hasPassedTitle, true, 'test_runner.html must pass with <title>TESTS_PASSED</title> in headless Chrome');
   assert.strictEqual(hasFailedTitle, false, 'test_runner.html must not fail with <title>TESTS_FAILED</title>');
-  console.log('✓ Headless Chrome DOM Test Suite (33/33 DOM Tests in test_runner.html) passed');
+  console.log('✓ Headless Chrome DOM Test Suite (34/34 DOM Tests in test_runner.html) passed');
 
 } else {
   console.log('⚠ Chrome executable not found at default path, skipped headless DOM run');

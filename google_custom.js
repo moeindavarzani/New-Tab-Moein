@@ -1,19 +1,90 @@
 (() => {
-  const isGoogleHost = location.hostname.includes('google.');
-  const isExtensionPage = location.protocol === 'chrome-extension:' || window.__TAB_MOEIN_TEST__;
-  if (!isGoogleHost && !isExtensionPage) return;
-
-  const isHomePage = () => {
-    if (window.__TAB_MOEIN_TEST__) return true;
-    if (location.protocol === 'chrome-extension:') return true;
-    const cleanPath = (location.pathname || '').replace(/\/+$/, '');
-    return cleanPath === '' ||
-           cleanPath === '/webhp' ||
-           cleanPath.startsWith('/_/chrome/newtab') ||
-           cleanPath === '/newtab' ||
-           cleanPath === '/m' ||
-           cleanPath === '/ig';
+  const isGoogleHomepageHostname = (hostname) => {
+    if (!hostname || typeof hostname !== 'string') return false;
+    const cleanHost = hostname.trim().toLowerCase();
+    return /^(?:www\.)?google\.(?:[a-z]{2,4}|(?:co|com|org|net)\.[a-z]{2})$/i.test(cleanHost);
   };
+
+  const isHomePage = (urlOrLocation) => {
+    // If no argument and running inside the headless/browser test runner (file://), allow DOM tests to mount
+    if (!urlOrLocation && typeof window !== 'undefined' && window.__TAB_MOEIN_TEST__ && typeof location !== 'undefined' && location.protocol === 'file:') {
+      return true;
+    }
+
+    let protocol = '';
+    let hostname = '';
+    let pathname = '';
+    let search = '';
+
+    if (typeof urlOrLocation === 'string') {
+      try {
+        const parsed = new URL(urlOrLocation, 'https://www.google.com');
+        protocol = parsed.protocol;
+        hostname = parsed.hostname;
+        pathname = parsed.pathname;
+        search = parsed.search;
+      } catch (e) {
+        return false;
+      }
+    } else if (urlOrLocation && typeof urlOrLocation === 'object') {
+      protocol = urlOrLocation.protocol || '';
+      hostname = urlOrLocation.hostname || '';
+      pathname = urlOrLocation.pathname || '';
+      search = urlOrLocation.search || '';
+    } else if (typeof location !== 'undefined') {
+      protocol = location.protocol || '';
+      hostname = location.hostname || '';
+      pathname = location.pathname || '';
+      search = location.search || '';
+    } else {
+      return false;
+    }
+
+    // Chrome extension new tab override page
+    if (protocol === 'chrome-extension:') {
+      return true;
+    }
+
+    // Must be valid Google homepage hostname (excludes subdomains like translate, myaccount, mail, drive, etc.)
+    if (!isGoogleHomepageHostname(hostname)) {
+      return false;
+    }
+
+    // Must match valid homepage paths
+    const cleanPath = (pathname || '').replace(/\/+$/, '');
+    const isValidPath = cleanPath === '' ||
+                        cleanPath === '/webhp' ||
+                        cleanPath.startsWith('/_/chrome/newtab') ||
+                        cleanPath === '/newtab' ||
+                        cleanPath === '/m' ||
+                        cleanPath === '/ig';
+
+    if (!isValidPath) {
+      return false;
+    }
+
+    // If query string has an active search query (q=...) or search mode (tbm=...), it is a search results page
+    if (search) {
+      try {
+        const params = new URLSearchParams(search);
+        const query = params.get('q');
+        if (query && query.trim().length > 0) {
+          return false;
+        }
+        const tbm = params.get('tbm');
+        if (tbm && tbm.trim().length > 0) {
+          return false;
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    return true;
+  };
+
+  // Immediate bail-out if this page is not the Google Homepage or Extension New Tab
+  if (!isHomePage()) return;
 
   const MAX_BOXES = 12;
   const STORAGE_KEY = 'moein_boxes';
@@ -2090,7 +2161,14 @@
 
   // Google Homepage Layout Customizations
   const applyCustomizations = () => {
-    if (!isHomePage()) return;
+    if (!isHomePage()) {
+      const bar = document.getElementById('moein-unified-bar');
+      if (bar) bar.remove();
+      const grid = document.getElementById('moein-shortcuts-grid');
+      if (grid) grid.remove();
+      if (document.body) document.body.classList.remove('moein-tab-active');
+      return;
+    }
     if (!document.body) return;
     if (window !== window.top && !window.__TAB_MOEIN_TEST__) return;
 
@@ -2499,6 +2577,7 @@
       },
       applyCustomizations,
       isHomePage,
+      isGoogleHomepageHostname,
       showGoogleOfflineBanner,
       hideGoogleOfflineBanner
     };

@@ -38,11 +38,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   }
 });
 
-// Intercept failed navigations to Google (e.g. offline errors) and redirect to local offline page
+// Helper to check if a URL is a Google Homepage URL (not a service subdomain like translate or myaccount)
+function isGoogleHomepageUrl(rawUrl) {
+  if (!rawUrl || typeof rawUrl !== 'string') return false;
+  try {
+    const parsed = new URL(rawUrl);
+    const host = parsed.hostname.toLowerCase();
+    if (!/^(?:www\.)?google\.(?:[a-z]{2,4}|(?:co|com|org|net)\.[a-z]{2})$/i.test(host)) {
+      return false;
+    }
+    const cleanPath = (parsed.pathname || '').replace(/\/+$/, '');
+    return cleanPath === '' ||
+           cleanPath === '/webhp' ||
+           cleanPath.startsWith('/_/chrome/newtab') ||
+           cleanPath === '/newtab' ||
+           cleanPath === '/m' ||
+           cleanPath === '/ig';
+  } catch (e) {
+    return false;
+  }
+}
+
+// Intercept failed navigations to Google homepage (e.g. offline errors) and redirect to local offline page
 if (typeof chrome !== 'undefined' && chrome.webNavigation && chrome.webNavigation.onErrorOccurred) {
   chrome.webNavigation.onErrorOccurred.addListener((details) => {
-    // Only intercept main frame (frameId === 0) navigations to Google domains
-    if (details.frameId === 0 && details.url && (details.url.includes('google.com') || details.url.includes('google.'))) {
+    // Only intercept main frame (frameId === 0) navigations to Google homepage
+    if (details.frameId === 0 && details.url && isGoogleHomepageUrl(details.url)) {
       // Ignore normal navigation cancellations/aborts (e.g. when redirecting or clicking links)
       if (details.error === 'net::ERR_ABORTED') {
         return;
